@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { Contract } from 'ethers';
 import { useWallet } from '../hooks/useWallet';
+import { useTx } from '../hooks/useTx';
 import { fetchProjects, pinProjectMetadata, ProjectRecord } from '../lib/api';
 import { addresses, registryAbi, creditAbi } from '../lib/contracts';
 import ConnectGate from '../components/ConnectGate';
@@ -9,6 +10,7 @@ import CopyButton from '../components/CopyButton';
 
 export default function Registry() {
   const { address, signer } = useWallet();
+  const tx = useTx();
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [isVerifier, setIsVerifier] = useState(false);
   const [name, setName] = useState('');
@@ -47,16 +49,16 @@ export default function Registry() {
         { name, description, location, owner: address },
         image ?? undefined,
       );
-      setStatus(`Submitting on-chain (CID ${cid})…`);
+      setStatus('');
       const registry = new Contract(addresses.registry, registryAbi, signer);
-      const tx = await registry.registerProject(cid);
-      await tx.wait();
-      setStatus('Registered.');
-      setName('');
-      setDescription('');
-      setLocation('');
-      setImage(null);
-      setTimeout(reload, 1500);
+      const ok = await tx.run('Register project', () => registry.registerProject(cid));
+      if (ok) {
+        setName('');
+        setDescription('');
+        setLocation('');
+        setImage(null);
+        setTimeout(reload, 1500);
+      }
     } catch (e) {
       setStatus('Error: ' + (e as Error).message);
     }
@@ -65,17 +67,17 @@ export default function Registry() {
   async function approve(id: number) {
     if (!signer) return;
     const registry = new Contract(addresses.registry, registryAbi, signer);
-    const tx = await registry.approveProject(id);
-    await tx.wait();
-    reload();
+    const ok = await tx.run(`Approve project #${id}`, () => registry.approveProject(id));
+    if (ok) setTimeout(reload, 1500);
   }
 
   async function mint(id: number) {
     if (!signer) return;
     const credit = new Contract(addresses.credit, creditAbi, signer);
-    const tx = await credit.mint(mintTo[id] ?? address, id, mintAmt[id] ?? '0');
-    await tx.wait();
-    reload();
+    const ok = await tx.run(`Mint credits for #${id}`, () =>
+      credit.mint(mintTo[id] ?? address, id, mintAmt[id] ?? '0'),
+    );
+    if (ok) setTimeout(reload, 1500);
   }
 
   return (

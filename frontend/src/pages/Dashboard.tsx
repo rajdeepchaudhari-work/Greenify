@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { Contract, formatEther } from 'ethers';
 import { Link } from 'react-router-dom';
 import { useWallet } from '../hooks/useWallet';
+import { useTx } from '../hooks/useTx';
 import { fetchListings, fetchProjects, ListingRecord, ProjectRecord } from '../lib/api';
 import { addresses, creditAbi } from '../lib/contracts';
 import ProjectMeta from '../components/ProjectMeta';
@@ -9,6 +10,7 @@ import CopyButton from '../components/CopyButton';
 
 export default function Dashboard() {
   const { address, signer } = useWallet();
+  const tx = useTx();
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [listings, setListings] = useState<ListingRecord[]>([]);
   const [balances, setBalances] = useState<Record<number, string>>({});
@@ -48,15 +50,18 @@ export default function Dashboard() {
 
   async function retire(projectId: number, amount: string) {
     if (!signer) return;
+    setBusy(projectId);
     try {
-      setBusy(projectId);
       const credit = new Contract(addresses.credit, creditAbi, signer);
-      const tx = await credit.retire(projectId, amount);
-      await tx.wait();
-      setBalances((b) => {
-        const { [projectId]: _drop, ...rest } = b;
-        return rest;
-      });
+      const ok = await tx.run(`Retire ${amount} from #${projectId}`, () =>
+        credit.retire(projectId, amount),
+      );
+      if (ok) {
+        setBalances((b) => {
+          const { [projectId]: _drop, ...rest } = b;
+          return rest;
+        });
+      }
     } finally {
       setBusy(null);
     }

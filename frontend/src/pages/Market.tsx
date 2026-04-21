@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { Contract, formatEther, parseEther } from 'ethers';
 import { useWallet } from '../hooks/useWallet';
+import { useTx } from '../hooks/useTx';
 import { fetchListings, fetchProjects, ListingRecord, ProjectRecord } from '../lib/api';
 import { addresses, creditAbi, marketAbi } from '../lib/contracts';
 import ConnectGate from '../components/ConnectGate';
@@ -9,6 +10,7 @@ import CopyButton from '../components/CopyButton';
 
 export default function Market() {
   const { address, signer } = useWallet();
+  const tx = useTx();
   const [listings, setListings] = useState<ListingRecord[]>([]);
   const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [busy, setBusy] = useState<number | null>(null);
@@ -35,21 +37,26 @@ export default function Market() {
   async function createListing(e: React.FormEvent) {
     e.preventDefault();
     if (!signer) return;
+    setBusy(-1);
     try {
-      setBusy(-1);
       const credit = new Contract(addresses.credit, creditAbi, signer);
       const approved = await credit.isApprovedForAll(await signer.getAddress(), addresses.market);
       if (!approved) {
-        const txa = await credit.setApprovalForAll(addresses.market, true);
-        await txa.wait();
+        const ok = await tx.run('Approve marketplace (one-time)', () =>
+          credit.setApprovalForAll(addresses.market, true),
+        );
+        if (!ok) return;
       }
       const market = new Contract(addresses.market, marketAbi, signer);
-      const tx = await market.list(projectId, amount, parseEther(priceEth));
-      await tx.wait();
-      setProjectId('');
-      setAmount('');
-      setPriceEth('');
-      setTimeout(reload, 1500);
+      const ok = await tx.run('Create listing', () =>
+        market.list(projectId, amount, parseEther(priceEth)),
+      );
+      if (ok) {
+        setProjectId('');
+        setAmount('');
+        setPriceEth('');
+        setTimeout(reload, 1500);
+      }
     } finally {
       setBusy(null);
     }
@@ -57,13 +64,14 @@ export default function Market() {
 
   async function buy(l: ListingRecord, qty: string) {
     if (!signer) return;
+    setBusy(l.listingId);
     try {
-      setBusy(l.listingId);
       const market = new Contract(addresses.market, marketAbi, signer);
       const total = BigInt(qty) * BigInt(l.pricePerUnit);
-      const tx = await market.buy(l.listingId, qty, { value: total });
-      await tx.wait();
-      reload();
+      const ok = await tx.run(`Buy ${qty} from listing #${l.listingId}`, () =>
+        market.buy(l.listingId, qty, { value: total }),
+      );
+      if (ok) setTimeout(reload, 1500);
     } finally {
       setBusy(null);
     }
@@ -71,12 +79,11 @@ export default function Market() {
 
   async function cancel(l: ListingRecord) {
     if (!signer) return;
+    setBusy(l.listingId);
     try {
-      setBusy(l.listingId);
       const market = new Contract(addresses.market, marketAbi, signer);
-      const tx = await market.cancel(l.listingId);
-      await tx.wait();
-      reload();
+      const ok = await tx.run(`Cancel listing #${l.listingId}`, () => market.cancel(l.listingId));
+      if (ok) setTimeout(reload, 1500);
     } finally {
       setBusy(null);
     }

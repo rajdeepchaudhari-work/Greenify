@@ -1,5 +1,6 @@
 import { Routes, Route } from 'react-router-dom';
 import NavBar from './components/NavBar';
+import TxBanner from './components/TxBanner';
 import Dashboard from './pages/Dashboard';
 import Registry from './pages/Registry';
 import Market from './pages/Market';
@@ -7,6 +8,7 @@ import Market from './pages/Market';
 export default function App() {
   return (
     <div className="min-h-screen">
+      <TxBanner />
       <NavBar />
       <main className="mx-auto max-w-6xl px-4 py-8">
         <Routes>
