@@ -20,7 +20,7 @@ export async function pinJson(data: unknown): Promise<string> {
 }
 
 export async function pinFile(buffer: Buffer, name: string, mimeType: string): Promise<string> {
-  const file = new File([buffer], name, { type: mimeType });
+  const file = new File([new Uint8Array(buffer)], name, { type: mimeType });
   const res = await getClient().upload.file(file);
   return res.IpfsHash;
 }
