@@ -18,11 +18,13 @@ export const creditAbi = [
   'event CreditsRetired(address indexed from, uint256 indexed projectId, uint256 amount)',
 ];
 
-let provider: ethers.JsonRpcProvider | null = null;
-export function getProvider() {
+let provider: ethers.Provider | null = null;
+export function getProvider(): ethers.Provider {
   if (!provider) {
     if (!config.rpcUrl) throw new Error('SEPOLIA_RPC_URL missing');
-    provider = new ethers.JsonRpcProvider(config.rpcUrl);
+    provider = config.rpcUrl.startsWith('wss')
+      ? new ethers.WebSocketProvider(config.rpcUrl)
+      : new ethers.JsonRpcProvider(config.rpcUrl);
   }
   return provider;
 }

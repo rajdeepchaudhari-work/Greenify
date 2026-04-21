@@ -42,3 +42,4 @@ Thumbs.db
 
 # claude runtime
 .claude/settings.local.json
+frontend/tsconfig.tsbuildinfo

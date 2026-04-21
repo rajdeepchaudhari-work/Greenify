@@ -1,13 +1,23 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Contract, formatEther, parseEther } from 'ethers';
 import { useWallet } from '../hooks/useWallet';
-import { fetchListings, ListingRecord } from '../lib/api';
+import { fetchListings, fetchProjects, ListingRecord, ProjectRecord } from '../lib/api';
 import { addresses, creditAbi, marketAbi } from '../lib/contracts';
+import ConnectGate from '../components/ConnectGate';
+import ProjectMeta from '../components/ProjectMeta';
+import CopyButton from '../components/CopyButton';
 
 export default function Market() {
   const { address, signer } = useWallet();
   const [listings, setListings] = useState<ListingRecord[]>([]);
+  const [projects, setProjects] = useState<ProjectRecord[]>([]);
   const [busy, setBusy] = useState<number | null>(null);
+
+  const cidByProject = useMemo(() => {
+    const m = new Map<number, string>();
+    for (const p of projects) m.set(p.projectId, p.ipfsCid);
+    return m;
+  }, [projects]);
 
   // list form
   const [projectId, setProjectId] = useState('');
@@ -16,6 +26,7 @@ export default function Market() {
 
   async function reload() {
     setListings(await fetchListings());
+    setProjects(await fetchProjects());
   }
   useEffect(() => {
     reload();
@@ -75,32 +86,34 @@ export default function Market() {
     <section className="grid gap-6 md:grid-cols-3">
       <div className="brutal-card p-6 md:col-span-1">
         <h2 className="mb-4 text-2xl uppercase">New listing</h2>
-        <form className="space-y-3" onSubmit={createListing}>
-          <input
-            className="brutal-input"
-            placeholder="Project ID"
-            value={projectId}
-            onChange={(e) => setProjectId(e.target.value)}
-            required
-          />
-          <input
-            className="brutal-input"
-            placeholder="Amount (tonnes)"
-            value={amount}
-            onChange={(e) => setAmount(e.target.value)}
-            required
-          />
-          <input
-            className="brutal-input"
-            placeholder="Price per unit (ETH)"
-            value={priceEth}
-            onChange={(e) => setPriceEth(e.target.value)}
-            required
-          />
-          <button className="brutal-btn" type="submit" disabled={busy === -1 || !address}>
-            {busy === -1 ? 'Submitting…' : 'List credits'}
-          </button>
-        </form>
+        <ConnectGate action="list credits for sale">
+          <form className="space-y-3" onSubmit={createListing}>
+            <input
+              className="brutal-input"
+              placeholder="Project ID"
+              value={projectId}
+              onChange={(e) => setProjectId(e.target.value)}
+              required
+            />
+            <input
+              className="brutal-input"
+              placeholder="Amount (tonnes)"
+              value={amount}
+              onChange={(e) => setAmount(e.target.value)}
+              required
+            />
+            <input
+              className="brutal-input"
+              placeholder="Price per unit (ETH)"
+              value={priceEth}
+              onChange={(e) => setPriceEth(e.target.value)}
+              required
+            />
+            <button className="brutal-btn" type="submit" disabled={busy === -1 || !address}>
+              {busy === -1 ? 'Submitting…' : 'List credits'}
+            </button>
+          </form>
+        </ConnectGate>
       </div>
 
       <div className="brutal-card p-6 md:col-span-2">
@@ -111,16 +124,33 @@ export default function Market() {
             return (
               <li key={l.listingId} className="border-2 border-brand-black p-3">
                 <div className="flex flex-wrap items-center justify-between gap-2">
-                  <div>
+                  <div className="inline-flex items-center">
                     <span className="font-mono font-bold">LISTING #{l.listingId}</span>
-                    <span className="brutal-tag ml-2">PROJECT #{l.projectId}</span>
+                    <span className="brutal-tag ml-2 inline-flex items-center">
+                      PROJECT #{l.projectId}
+                      <CopyButton value={String(l.projectId)} label="project id" />
+                    </span>
                   </div>
                   <div className="font-mono text-sm">
                     {formatEther(l.pricePerUnit)} ETH / tonne · {l.amount} available
                   </div>
                 </div>
-                <div className="font-mono text-xs">SELLER {l.seller}</div>
-                {isSeller ? (
+                {cidByProject.get(l.projectId) && (
+                  <ProjectMeta cid={cidByProject.get(l.projectId)!} />
+                )}
+                <div className="mt-2 flex items-center font-mono text-xs text-brand-black/60">
+                  SELLER {l.seller.slice(0, 10)}…{l.seller.slice(-6)}
+                  <CopyButton value={l.seller} label="seller address" />
+                </div>
+                {!address ? (
+                  <p className="mt-2 font-mono text-xs">
+                    Connect wallet to buy — or use{' '}
+                    <a href="https://sepoliafaucet.com" target="_blank" rel="noreferrer">
+                      Sepolia faucet
+                    </a>{' '}
+                    first.
+                  </p>
+                ) : isSeller ? (
                   <button
                     className="brutal-btn mt-2"
                     disabled={busy === l.listingId}

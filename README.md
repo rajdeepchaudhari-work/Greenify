@@ -133,13 +133,11 @@ Husky + lint-staged auto-format and lint on `git commit`.
 
 ## Deployed addresses (Sepolia)
 
-Will be filled after deployment. See `contracts/deployments/sepolia.json`.
-
-| Contract        | Address | Etherscan |
-| --------------- | ------- | --------- |
-| ProjectRegistry | _TBD_   | _TBD_     |
-| CarbonCredit    | _TBD_   | _TBD_     |
-| Marketplace     | _TBD_   | _TBD_     |
+| Contract        | Address                                      | Etherscan                                                                                    |
+| --------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- |
+| ProjectRegistry | `0x86B861a6F7E4B10CD96B7491fFA6a0967441142b` | [view](https://sepolia.etherscan.io/address/0x86B861a6F7E4B10CD96B7491fFA6a0967441142b#code) |
+| CarbonCredit    | `0x4272be407BA26d9aD469E5951e549eD36932bB9E` | [view](https://sepolia.etherscan.io/address/0x4272be407BA26d9aD469E5951e549eD36932bB9E#code) |
+| Marketplace     | `0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403` | [view](https://sepolia.etherscan.io/address/0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403#code) |
 
 ---
 

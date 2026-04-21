@@ -1,4 +1,5 @@
-import { useEffect, useState, useCallback } from 'react';
+import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from 'react';
+import { createElement } from 'react';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import { CHAIN_ID } from '../lib/contracts';
 
@@ -22,31 +23,46 @@ export interface WalletState {
   error: string | null;
 }
 
-export function useWallet(): WalletState {
+const WalletContext = createContext<WalletState | null>(null);
+
+export function WalletProvider({ children }: { children: ReactNode }) {
   const [address, setAddress] = useState<string | null>(null);
   const [chainId, setChainId] = useState<number | null>(null);
   const [provider, setProvider] = useState<BrowserProvider | null>(null);
   const [signer, setSigner] = useState<JsonRpcSigner | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const connect = useCallback(async () => {
+  const refresh = useCallback(async () => {
+    if (!window.ethereum) return;
     try {
-      setError(null);
-      if (!window.ethereum) throw new Error('MetaMask not detected');
       const p = new BrowserProvider(window.ethereum as never);
-      const accounts = (await window.ethereum.request({
-        method: 'eth_requestAccounts',
-      })) as string[];
+      const accounts = (await window.ethereum.request({ method: 'eth_accounts' })) as string[];
+      if (accounts.length === 0) {
+        setAddress(null);
+        setSigner(null);
+        return;
+      }
       const net = await p.getNetwork();
       const s = await p.getSigner();
       setProvider(p);
       setSigner(s);
-      setAddress(accounts[0] ?? null);
+      setAddress(accounts[0]);
       setChainId(Number(net.chainId));
     } catch (e) {
       setError((e as Error).message);
     }
   }, []);
+
+  const connect = useCallback(async () => {
+    try {
+      setError(null);
+      if (!window.ethereum) throw new Error('MetaMask not detected');
+      await window.ethereum.request({ method: 'eth_requestAccounts' });
+      await refresh();
+    } catch (e) {
+      setError((e as Error).message);
+    }
+  }, [refresh]);
 
   const switchToTarget = useCallback(async () => {
     if (!window.ethereum) return;
@@ -56,25 +72,31 @@ export function useWallet(): WalletState {
         method: 'wallet_switchEthereumChain',
         params: [{ chainId: hex }],
       });
+      await refresh();
     } catch (e) {
       setError((e as Error).message);
     }
-  }, []);
+  }, [refresh]);
 
   useEffect(() => {
+    refresh();
     if (!window.ethereum) return;
-    const onAccounts = (accounts: unknown) => {
-      const a = accounts as string[];
-      setAddress(a[0] ?? null);
-    };
-    const onChain = () => window.location.reload();
+    const onAccounts = () => refresh();
+    const onChain = () => refresh();
     window.ethereum.on('accountsChanged', onAccounts);
     window.ethereum.on('chainChanged', onChain);
     return () => {
       window.ethereum?.removeListener('accountsChanged', onAccounts);
       window.ethereum?.removeListener('chainChanged', onChain);
     };
-  }, []);
+  }, [refresh]);
 
-  return { address, chainId, provider, signer, connect, switchToTarget, error };
+  const value: WalletState = { address, chainId, provider, signer, connect, switchToTarget, error };
+  return createElement(WalletContext.Provider, { value }, children);
+}
+
+export function useWallet(): WalletState {
+  const ctx = useContext(WalletContext);
+  if (!ctx) throw new Error('useWallet must be used inside <WalletProvider>');
+  return ctx;
 }

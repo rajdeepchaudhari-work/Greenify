@@ -23,7 +23,7 @@ async function main() {
   if (config.contracts.registry && config.rpcUrl) {
     try {
       assertContractAddresses();
-      startIndexer();
+      await startIndexer();
     } catch (e) {
       console.warn('[backend] indexer disabled:', (e as Error).message);
     }

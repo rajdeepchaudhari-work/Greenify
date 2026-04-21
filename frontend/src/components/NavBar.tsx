@@ -20,10 +20,9 @@ export default function NavBar() {
       <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
         <Link to="/" className="no-underline">
           <div className="flex items-baseline gap-2">
-            <span className="font-mono text-3xl font-bold">
+            <span className="font-mono text-3xl font-bold tracking-tight">
               <span className="text-brand-red">G</span>REENIFY
             </span>
-            <span className="brutal-tag">CARBON v0.1</span>
           </div>
         </Link>
         <nav className="flex items-center gap-1">

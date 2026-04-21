@@ -3,6 +3,9 @@ import { Contract } from 'ethers';
 import { useWallet } from '../hooks/useWallet';
 import { fetchProjects, pinProjectMetadata, ProjectRecord } from '../lib/api';
 import { addresses, registryAbi, creditAbi } from '../lib/contracts';
+import ConnectGate from '../components/ConnectGate';
+import ProjectMeta from '../components/ProjectMeta';
+import CopyButton from '../components/CopyButton';
 
 export default function Registry() {
   const { address, signer } = useWallet();
@@ -79,39 +82,41 @@ export default function Registry() {
     <section className="grid gap-6 md:grid-cols-2">
       <div className="brutal-card p-6">
         <h2 className="mb-4 text-3xl uppercase">Register project</h2>
-        <form className="space-y-3" onSubmit={register}>
-          <input
-            className="brutal-input"
-            placeholder="Project name"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-            required
-          />
-          <textarea
-            className="brutal-input"
-            rows={4}
-            placeholder="Description"
-            value={description}
-            onChange={(e) => setDescription(e.target.value)}
-            required
-          />
-          <input
-            className="brutal-input"
-            placeholder="Location"
-            value={location}
-            onChange={(e) => setLocation(e.target.value)}
-          />
-          <input
-            type="file"
-            accept="image/*"
-            className="brutal-input"
-            onChange={(e) => setImage(e.target.files?.[0] ?? null)}
-          />
-          <button className="brutal-btn" type="submit" disabled={!address}>
-            Register
-          </button>
-          {status && <p className="font-mono text-sm">{status}</p>}
-        </form>
+        <ConnectGate action="register a project">
+          <form className="space-y-3" onSubmit={register}>
+            <input
+              className="brutal-input"
+              placeholder="Project name"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              required
+            />
+            <textarea
+              className="brutal-input"
+              rows={4}
+              placeholder="Description"
+              value={description}
+              onChange={(e) => setDescription(e.target.value)}
+              required
+            />
+            <input
+              className="brutal-input"
+              placeholder="Location"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+            />
+            <input
+              type="file"
+              accept="image/*"
+              className="brutal-input"
+              onChange={(e) => setImage(e.target.files?.[0] ?? null)}
+            />
+            <button className="brutal-btn" type="submit" disabled={!address}>
+              Register
+            </button>
+            {status && <p className="font-mono text-sm">{status}</p>}
+          </form>
+        </ConnectGate>
       </div>
 
       <div className="brutal-card p-6">
@@ -120,13 +125,23 @@ export default function Registry() {
           {projects.map((p) => (
             <li key={p.projectId} className="border-2 border-brand-black bg-brand-cream p-3">
               <div className="flex items-center justify-between">
-                <span className="font-mono font-bold">#{p.projectId}</span>
+                <span className="inline-flex items-center font-mono font-bold">
+                  #{p.projectId}
+                  <CopyButton value={String(p.projectId)} label="project id" />
+                </span>
                 <span className={p.approved ? 'brutal-tag bg-brand-red' : 'brutal-tag'}>
                   {p.approved ? 'APPROVED' : 'PENDING'}
                 </span>
               </div>
-              <div className="font-mono text-xs">CID {p.ipfsCid}</div>
-              <div className="font-mono text-xs">OWNER {p.owner}</div>
+              <ProjectMeta cid={p.ipfsCid} />
+              <div className="mt-2 flex items-center font-mono text-xs text-brand-black/60">
+                CID {p.ipfsCid.slice(0, 16)}…
+                <CopyButton value={p.ipfsCid} label="CID" />
+              </div>
+              <div className="flex items-center font-mono text-xs text-brand-black/60">
+                OWNER {p.owner.slice(0, 10)}…{p.owner.slice(-6)}
+                <CopyButton value={p.owner} label="owner address" />
+              </div>
               {isVerifier && !p.approved && (
                 <button className="brutal-btn mt-2" onClick={() => approve(p.projectId)}>
                   Approve
