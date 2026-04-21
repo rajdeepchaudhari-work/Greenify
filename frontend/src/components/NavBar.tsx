@@ -11,40 +11,52 @@ export default function NavBar() {
   const wrongNet = address && chainId !== CHAIN_ID;
 
   const linkCls = ({ isActive }: { isActive: boolean }) =>
-    `px-3 py-2 font-mono uppercase text-sm ${
-      isActive ? 'bg-brand-black text-brand-cream' : 'hover:bg-brand-yellow'
+    `px-3 py-1.5 font-mono text-[0.72rem] font-semibold uppercase tracking-[0.1em] border-2 ${
+      isActive
+        ? 'border-ink bg-ink text-cream'
+        : 'border-transparent hover:border-ink hover:bg-yellow'
     }`;
 
   return (
-    <header className="border-b-4 border-brand-black bg-brand-cream">
-      <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-4">
-        <Link to="/" className="no-underline">
-          <div className="flex items-baseline gap-2">
-            <span className="font-mono text-3xl font-bold tracking-tight">
-              <span className="text-brand-red">G</span>REENIFY
-            </span>
-          </div>
+    <header className="sticky top-0 z-40 border-b-[3px] border-ink bg-cream">
+      <div className="mx-auto flex max-w-6xl items-center justify-between px-5 py-3 lg:px-10">
+        <Link
+          to="/"
+          className="flex items-center gap-2.5 font-display text-[1.2rem] font-extrabold uppercase tracking-tight"
+          aria-label="Greenify home"
+        >
+          <span className="inline-flex h-6 w-6 items-center justify-center border-2 border-ink bg-red font-display text-[0.85rem] font-extrabold text-cream">
+            G
+          </span>
+          Greenify
         </Link>
         <nav className="flex items-center gap-1">
-          <NavLink to="/" className={linkCls} end>
+          <NavLink to="/app" end className={linkCls}>
             Dashboard
           </NavLink>
-          <NavLink to="/registry" className={linkCls}>
+          <NavLink to="/app/registry" className={linkCls}>
             Registry
           </NavLink>
-          <NavLink to="/market" className={linkCls}>
+          <NavLink to="/app/market" className={linkCls}>
             Market
           </NavLink>
+          <span className="mx-2 h-6 w-px bg-ink/20" />
           {address ? (
             wrongNet ? (
-              <button className="brutal-btn-red" onClick={switchToTarget}>
+              <button
+                onClick={switchToTarget}
+                className="brut-btn bg-red px-3 py-1.5 text-[0.72rem] text-cream"
+              >
                 Switch to Sepolia
               </button>
             ) : (
-              <span className="brutal-tag">{short(address)}</span>
+              <span className="brut-tag bg-ink">{short(address)}</span>
             )
           ) : (
-            <button className="brutal-btn" onClick={connect}>
+            <button
+              onClick={connect}
+              className="brut-btn bg-yellow px-3 py-1.5 text-[0.72rem] text-ink"
+            >
               Connect Wallet
             </button>
           )}

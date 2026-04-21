@@ -8,38 +8,258 @@
   #root {
     height: 100%;
   }
+  html {
+    background: #fdf2e9;
+    color: #000;
+  }
   body {
-    background: theme('colors.brand.cream');
-    color: theme('colors.brand.black');
-    font-family: theme('fontFamily.sans');
+    background: #fdf2e9;
+    color: #000;
+    font-family: 'DM Sans', system-ui, sans-serif;
+    overflow-x: hidden;
+  }
+  ::selection {
+    background: #ffeb3b;
+    color: #000;
+  }
+  ::-webkit-scrollbar {
+    width: 12px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #fdf2e9;
+    border-left: 2px solid #000;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #000;
+    border: 2px solid #fdf2e9;
   }
   h1,
   h2,
-  h3 {
-    font-family: theme('fontFamily.mono');
-    letter-spacing: -0.02em;
+  h3,
+  h4 {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
   }
   a {
-    text-decoration: underline;
-    text-decoration-thickness: 2px;
-    text-underline-offset: 3px;
+    color: inherit;
   }
 }
 
 @layer components {
+  .text-editorial {
+    font-family: 'Bricolage Grotesque', system-ui, sans-serif;
+    font-weight: 800;
+    letter-spacing: -0.04em;
+    line-height: 0.95;
+  }
+
+  .brut-card {
+    border: 3px solid #000;
+    background: #fff;
+    box-shadow: 6px 6px 0 0 #000;
+    transition:
+      transform 0.12s linear,
+      box-shadow 0.12s linear;
+  }
+  .brut-card:hover {
+    transform: translate(-3px, -3px);
+    box-shadow: 9px 9px 0 0 #000;
+  }
+
+  .brut-btn {
+    border: 3px solid #000;
+    box-shadow: 4px 4px 0 0 #000;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition:
+      transform 0.1s linear,
+      box-shadow 0.1s linear;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+  }
+  .brut-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 #000;
+  }
+  .brut-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 #000;
+  }
+  .brut-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 4px 4px 0 0 #000;
+  }
+
+  .brut-input {
+    width: 100%;
+    border: 3px solid #000;
+    background: #fff;
+    padding: 0.6rem 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.9rem;
+    outline: none;
+  }
+  .brut-input:focus {
+    background: #fff9c4;
+    box-shadow: 4px 4px 0 0 #000;
+  }
+
+  .brut-tag,
+  .brutal-tag {
+    display: inline-block;
+    border: 2px solid #000;
+    background: #000;
+    color: #fdf2e9;
+    padding: 0.15rem 0.5rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+  }
+
+  /* Aliases so the in-app pages keep working with the new palette */
   .brutal-card {
-    @apply border-2 border-brand-black bg-white shadow-brutal;
+    border: 3px solid #000;
+    background: #fff;
+    box-shadow: 6px 6px 0 0 #000;
   }
   .brutal-btn {
-    @apply inline-flex items-center gap-2 border-2 border-brand-black bg-brand-yellow px-4 py-2 font-mono font-bold uppercase tracking-wider shadow-brutal-sm transition-none hover:-translate-x-[2px] hover:-translate-y-[2px] hover:shadow-brutal active:translate-x-0 active:translate-y-0 active:shadow-none disabled:opacity-50 disabled:cursor-not-allowed;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 3px solid #000;
+    background: #ffeb3b;
+    color: #000;
+    padding: 0.6rem 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.78rem;
+    box-shadow: 4px 4px 0 0 #000;
+    transition:
+      transform 0.1s linear,
+      box-shadow 0.1s linear;
+  }
+  .brutal-btn:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 #000;
+  }
+  .brutal-btn:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 #000;
+  }
+  .brutal-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 4px 4px 0 0 #000;
   }
   .brutal-btn-red {
-    @apply brutal-btn bg-brand-red text-white;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    border: 3px solid #000;
+    background: #ff5252;
+    color: #fff;
+    padding: 0.6rem 1.1rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    font-size: 0.78rem;
+    box-shadow: 4px 4px 0 0 #000;
+    transition:
+      transform 0.1s linear,
+      box-shadow 0.1s linear;
+  }
+  .brutal-btn-red:hover {
+    transform: translate(-2px, -2px);
+    box-shadow: 6px 6px 0 0 #000;
+  }
+  .brutal-btn-red:active {
+    transform: translate(2px, 2px);
+    box-shadow: 2px 2px 0 0 #000;
+  }
+  .brutal-btn-red:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
   .brutal-input {
-    @apply w-full border-2 border-brand-black bg-white px-3 py-2 font-mono outline-none focus:shadow-brutal-sm;
+    width: 100%;
+    border: 3px solid #000;
+    background: #fff;
+    padding: 0.6rem 0.85rem;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+    outline: none;
   }
-  .brutal-tag {
-    @apply inline-block border-2 border-brand-black bg-brand-black px-2 py-0.5 font-mono text-xs uppercase text-brand-cream;
+  .brutal-input:focus {
+    background: #fff9c4;
+    box-shadow: 4px 4px 0 0 #000;
+  }
+
+  .bg-dots {
+    background-image: radial-gradient(circle, #000 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .bg-stripes {
+    background-image: repeating-linear-gradient(
+      45deg,
+      transparent,
+      transparent 12px,
+      #000 12px,
+      #000 14px
+    );
+  }
+  .bg-grid-brut {
+    background-image:
+      linear-gradient(to right, #00000014 1px, transparent 1px),
+      linear-gradient(to bottom, #00000014 1px, transparent 1px);
+    background-size: 40px 40px;
+  }
+
+  .stagger-in > * {
+    opacity: 0;
+    animation: fadeSlideUp 0.4s linear forwards;
+  }
+  .stagger-in > *:nth-child(1) {
+    animation-delay: 0.05s;
+  }
+  .stagger-in > *:nth-child(2) {
+    animation-delay: 0.12s;
+  }
+  .stagger-in > *:nth-child(3) {
+    animation-delay: 0.2s;
+  }
+  .stagger-in > *:nth-child(4) {
+    animation-delay: 0.28s;
+  }
+  .stagger-in > *:nth-child(5) {
+    animation-delay: 0.36s;
+  }
+  .stagger-in > *:nth-child(6) {
+    animation-delay: 0.44s;
+  }
+}
+
+@keyframes fadeSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(16px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
   }
 }
