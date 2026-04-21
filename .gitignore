@@ -40,6 +40,17 @@ Thumbs.db
 *.swp
 *.swo
 
-# claude runtime
-.claude/settings.local.json
+# claude / agent tooling (not part of the submission)
+.claude/
+.agents/
+skills-lock.json
+CLAUDE.md
+
+# archived legacy code (kept locally for reference, not in the repo)
+backend.legacy/
+
+# internal copy deck (not part of the technical deliverable)
+content.md
+
+# ts build artifact
 frontend/tsconfig.tsbuildinfo
