@@ -1,7 +1,7 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectMongo } from './_lib/mongo';
-import { config, assertContractAddresses } from './_lib/config';
-import { runSync } from './_lib/backfill';
+import { connectMongo } from './_lib/mongo.js';
+import { config, assertContractAddresses } from './_lib/config.js';
+import { runSync } from './_lib/backfill.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   // Accept Vercel Cron calls (they include an Authorization header with CRON_SECRET when set)

@@ -1,5 +1,5 @@
 import { PinataSDK } from 'pinata-web3';
-import { config } from './config';
+import { config } from './config.js';
 
 let client: PinataSDK | null = null;
 

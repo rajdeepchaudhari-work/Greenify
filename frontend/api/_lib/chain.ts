@@ -1,5 +1,5 @@
 import { Contract, JsonRpcProvider, WebSocketProvider, type Provider } from 'ethers';
-import { config } from './config';
+import { config } from './config.js';
 
 export const registryAbi = [
   'event ProjectRegistered(uint256 indexed id, address indexed owner, string ipfsCid)',

@@ -1,6 +1,6 @@
 import type { Contract, EventLog, Log } from 'ethers';
-import { contracts, getProvider } from './chain';
-import { Project, Listing, Meta } from './models';
+import { contracts, getProvider } from './chain.js';
+import { Project, Listing, Meta } from './models.js';
 
 const CHUNK = 45_000;
 const LAST_BLOCK_KEY = 'indexer:lastBlock';

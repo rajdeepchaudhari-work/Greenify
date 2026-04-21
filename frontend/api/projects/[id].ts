@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from '@vercel/node';
-import { connectMongo } from '../_lib/mongo';
-import { Project } from '../_lib/models';
+import { connectMongo } from '../_lib/mongo.js';
+import { Project } from '../_lib/models.js';
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   try {

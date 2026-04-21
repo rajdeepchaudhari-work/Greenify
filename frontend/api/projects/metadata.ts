@@ -2,7 +2,7 @@ import type { VercelRequest, VercelResponse } from '@vercel/node';
 import formidable from 'formidable';
 import fs from 'node:fs/promises';
 import { z } from 'zod';
-import { pinFile, pinJson, gatewayUrl } from '../_lib/ipfs';
+import { pinFile, pinJson, gatewayUrl } from '../_lib/ipfs.js';
 
 export const config = {
   api: {
