@@ -5,14 +5,12 @@
   "description": "Greenify — blockchain-based carbon credit trading DApp (CN6035 Task 1)",
   "workspaces": [
     "contracts",
-    "backend",
     "frontend"
   ],
   "scripts": {
-    "dev:backend": "npm --workspace backend run dev",
+    "dev": "npm --workspace frontend run dev",
     "dev:frontend": "npm --workspace frontend run dev",
     "test:contracts": "npm --workspace contracts run test",
-    "test:backend": "npm --workspace backend run test",
     "lint": "eslint \"**/*.{ts,tsx,js,jsx}\" --max-warnings=0",
     "lint:sol": "npm --workspace contracts run lint:sol",
     "format": "prettier --write \"**/*.{ts,tsx,js,jsx,json,md,sol}\"",

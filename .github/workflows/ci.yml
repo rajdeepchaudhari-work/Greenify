@@ -31,6 +31,3 @@ jobs:
 
       - name: Contract tests
         run: npm run test:contracts
-
-      - name: Backend tests
-        run: npm run test:backend
