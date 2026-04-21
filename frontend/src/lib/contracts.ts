@@ -1,5 +1,5 @@
 export const CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID ?? 11155111);
-export const API_URL = import.meta.env.VITE_API_URL ?? 'http://localhost:4000';
+export const API_URL = import.meta.env.VITE_API_URL ?? '';
 export const PUBLIC_RPC_URL =
   (import.meta.env.VITE_PUBLIC_RPC_URL as string) ?? 'https://ethereum-sepolia-rpc.publicnode.com';
 
