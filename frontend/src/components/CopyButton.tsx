@@ -18,9 +18,11 @@ export default function CopyButton({ value, label }: { value: string; label?: st
       type="button"
       onClick={copy}
       title={`Copy ${label ?? 'value'}`}
-      className="ml-1 inline-flex h-5 w-5 items-center justify-center border border-brand-black bg-brand-cream font-mono text-[10px] leading-none hover:bg-brand-yellow"
+      aria-label={copied ? `${label ?? 'Value'} copied` : `Copy ${label ?? 'value'}`}
+      aria-live="polite"
+      className="ml-1 inline-flex h-5 w-5 items-center justify-center border border-brand-black bg-brand-cream font-mono text-[10px] leading-none focus:outline focus:outline-2 focus:outline-brand-black hover:bg-brand-yellow"
     >
-      {copied ? '✓' : '⎘'}
+      <span aria-hidden="true">{copied ? '✓' : '⎘'}</span>
     </button>
   );
 }

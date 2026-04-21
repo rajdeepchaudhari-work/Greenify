@@ -54,3 +54,5 @@ content.md
 
 # ts build artifact
 frontend/tsconfig.tsbuildinfo
+.vercel
+.env*.local

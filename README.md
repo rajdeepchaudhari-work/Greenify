@@ -1,156 +1,206 @@
 # Greenify
 
-A hybrid DApp for trading tokenised carbon credits on Ethereum Sepolia.
+> Carbon credits on a public ledger. Mint. Trade. Retire. All on-chain.
 
-Built for **CN6035 Task 1** — Hybrid DApp Development.
+A hybrid DApp for trading tokenised carbon credits on Ethereum. Built as the CN6035 **Mobile and Distributed Systems** Task 1 submission.
+
+[![CI](https://github.com/rajdeepchaudhari-work/Greenify/actions/workflows/ci.yml/badge.svg)](https://github.com/rajdeepchaudhari-work/Greenify/actions/workflows/ci.yml)
+![Solidity](https://img.shields.io/badge/Solidity-0.8.24-363636?logo=solidity)
+![Node](https://img.shields.io/badge/Node-20%2B-43853D?logo=node.js)
+![License](https://img.shields.io/badge/license-MIT-blue)
+![Coverage](https://img.shields.io/badge/coverage-91%25-brightgreen)
+![Network](https://img.shields.io/badge/network-Sepolia-3c3c3d)
+
+**🔗 Live demo:** [greenifyrc.vercel.app](https://greenifyrc.vercel.app)
+**🧾 Technical report:** [`report.md`](./report.md)
+**📖 First-time setup:** [`SETUP.md`](./SETUP.md)
+
+---
+
+## What it does
+
+Greenify lets industries and environmental projects trade carbon credits without registries or spreadsheets. A credit is an ERC-1155 token (`1 unit = 1 tonne CO₂e`); every mint, sale, and retirement is a public Ethereum transaction. Anyone can audit the entire supply-chain from a block explorer.
+
+### End-to-end flow
+
+1. **Register** — a project owner pins metadata (+ evidence image) to IPFS and writes the CID on-chain
+2. **Approve** — a verifier role signs off on the project, unlocking issuance
+3. **Mint** — the verifier mints credits (ERC-1155) against the approved project
+4. **Trade** — any holder lists credits on the built-in escrow marketplace; buyers pay ETH
+5. **Retire** — holders burn credits to permanently claim the offset; the `CreditsRetired` event is the receipt
+
+---
 
 ## Architecture
 
 ```
-┌─────────────────────┐     ┌─────────────────────┐
-│  React + Vite       │───▶│  Express + Mongo    │
-│  (Neo-Brutalist UI) │     │  (IPFS + Indexer)   │
-│  ethers.js + MM     │     │  Event listener     │
-└──────────┬──────────┘     └──────────┬──────────┘
-           │ wallet tx                 │ JSON-RPC (read events)
-           ▼                           ▼
-      ┌────────────────────────────────────┐
-      │  Sepolia Testnet                   │
-      │  ProjectRegistry ─ CarbonCredit ─ Marketplace
-      │  (ERC-1155)                        │
-      └────────────────────────────────────┘
+┌──────────────────────────┐          ┌──────────────────────────┐
+│   React + Vite SPA       │  /api/*  │  Vercel Serverless       │
+│   (Neo-Brutalist UI)     │◄────────►│  - REST endpoints        │
+│   ethers.js + MetaMask   │          │  - /api/sync (cron)      │
+└──────────────┬───────────┘          │  - Pinata pinning        │
+               │  signed tx            │  - MongoDB Atlas cache   │
+               ▼                       └──────────────┬───────────┘
+        ┌────────────────────────────────────────────┐│
+        │  Ethereum Sepolia                          ││
+        │  ProjectRegistry ─ CarbonCredit ─ Marketplace
+        │          (OpenZeppelin AccessControl)      │◄─ indexer
+        └────────────────────────────────────────────┘   JSON-RPC reads
 ```
 
-### Contracts
-
-- **ProjectRegistry** — register environmental projects (IPFS CID), verifier approval, issuance accounting.
-- **CarbonCredit** (ERC-1155) — `projectId == tokenId`, 1 unit = 1 tCO₂e. Mintable only for approved projects. Holders can `retire()` (burn) to claim offset.
-- **Marketplace** — escrowed ERC-1155 listings with per-unit pricing, reentrancy-guarded buys, configurable protocol fee (capped 10%).
-
-### Backend
-
-- REST API (`/api/projects`, `/api/listings`) backed by MongoDB.
-- Pinata-backed IPFS pinning for project metadata + images.
-- Event indexer subscribes via ethers.js and mirrors on-chain state into Mongo for fast queries.
-
-### Frontend
-
-- React + Vite SPA.
-- MetaMask (EIP-1193) via `ethers.BrowserProvider`.
-- Neo-Brutalist design system — thick black borders, chunky offset shadows, monospace display, Greenify red `#E74C3C` / yellow `#FFD93D` accents.
+| Layer           | Tech                                                          |
+| --------------- | ------------------------------------------------------------- |
+| Smart contracts | Solidity `0.8.24`, OpenZeppelin 5.0, Hardhat, TypeChain, Chai |
+| Serverless API  | `@vercel/node`, Mongoose, Zod, Formidable, pinata-web3        |
+| Frontend        | React 18, Vite 5, TailwindCSS 3, ethers v6, React Router 6    |
+| Infra           | Vercel (frontend + serverless), MongoDB Atlas M0, Pinata IPFS |
+| Quality         | ESLint, Solhint, Prettier, Husky, lint-staged, GitHub Actions |
 
 ---
 
-## Prerequisites
+## Repository layout
 
-- Node.js 20+, npm 10+
-- MongoDB 7+ running locally (`brew install mongodb-community` or Docker)
-- A Sepolia RPC URL (Infura / Alchemy)
-- Funded Sepolia account (use [sepoliafaucet.com](https://sepoliafaucet.com))
-- Pinata JWT ([pinata.cloud](https://pinata.cloud))
-- MetaMask browser extension
+```
+.
+├── contracts/             Hardhat project
+│   ├── contracts/         ProjectRegistry · CarbonCredit · Marketplace
+│   ├── test/              13 Chai tests, 91% coverage
+│   ├── scripts/deploy.ts  Deployment + Etherscan verification
+│   └── deployments/       Sepolia addresses (committed)
+├── frontend/
+│   ├── api/               Vercel serverless functions (REST + cron)
+│   │   └── _lib/          Shared: mongo, chain, ipfs, models, backfill
+│   ├── src/               React app (pages, components, hooks, layouts)
+│   ├── public/            Favicons
+│   └── vercel.json        Cron + SPA rewrite
+├── .github/workflows/     CI: lint, format-check, tests on every push
+├── README.md              You are here
+├── SETUP.md               Step-by-step first run
+├── report.md              500–2000 word technical report
+└── CHANGELOG.md
+```
 
 ---
 
-## Install
+## Deployed contracts (Sepolia, verified)
+
+| Contract                | Address                                      | Etherscan                                                                                             |
+| ----------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
+| ProjectRegistry         | `0x86B861a6F7E4B10CD96B7491fFA6a0967441142b` | [view source ↗](https://sepolia.etherscan.io/address/0x86B861a6F7E4B10CD96B7491fFA6a0967441142b#code) |
+| CarbonCredit (ERC-1155) | `0x4272be407BA26d9aD469E5951e549eD36932bB9E` | [view source ↗](https://sepolia.etherscan.io/address/0x4272be407BA26d9aD469E5951e549eD36932bB9E#code) |
+| Marketplace             | `0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403` | [view source ↗](https://sepolia.etherscan.io/address/0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403#code) |
+
+All three are **source-verified** on Etherscan; ABIs and read/write interfaces are browsable without the repo.
+
+---
+
+## REST API
+
+Served by Vercel serverless functions at `/api/*`. Full schemas in [`frontend/api/README.md`](./frontend/api/README.md).
+
+| Method | Path                     | Description                                                 |
+| ------ | ------------------------ | ----------------------------------------------------------- |
+| GET    | `/api/health`            | Liveness + Mongo ping                                       |
+| GET    | `/api/projects`          | All projects, newest first                                  |
+| GET    | `/api/projects/[id]`     | One project by id                                           |
+| POST   | `/api/projects/metadata` | Pin name/description/image to IPFS via Pinata               |
+| GET    | `/api/listings`          | Active marketplace listings (`?active=true`, `?seller=0x…`) |
+| GET    | `/api/listings/[id]`     | One listing by id                                           |
+| GET    | `/api/sync`              | Incremental event backfill (cron-triggered)                 |
+
+---
+
+## Quick start
+
+First-time setup — see [`SETUP.md`](./SETUP.md) for the hand-held version.
 
 ```bash
-git clone https://github.com/<YOUR-USER>/Greenify.git
+git clone https://github.com/rajdeepchaudhari-work/Greenify.git
 cd Greenify
 npm install
-```
 
-### Environment
-
-Copy and fill all three `.env.example` files:
-
-```bash
-cp contracts/.env.example contracts/.env
-cp backend/.env.example backend/.env
-cp frontend/.env.example frontend/.env
-```
-
----
-
-## Run locally
-
-### 1. Compile + test contracts
-
-```bash
+# 1. Contracts
 cd contracts
+cp .env.example .env                 # add RPC, deployer key, Etherscan key
 npx hardhat compile
-npx hardhat test
-npx hardhat coverage          # optional
+npx hardhat test                     # 13 passing
+npx hardhat coverage                 # 91% statements
+npm run deploy:sepolia               # writes deployments/sepolia.json
+
+# 2. Frontend (runs api/ + SPA under vercel dev)
+cd ../frontend
+cp .env.example .env                 # paste contract addresses
+npm run dev                          # Vite SPA at :5173
+# For full local API + frontend:
+npx vercel dev                       # everything at :3000
 ```
 
-### 2. Deploy to Sepolia
-
-```bash
-cd contracts
-npm run deploy:sepolia
-```
-
-Addresses are written to `contracts/deployments/sepolia.json`. Copy them into:
-
-- `backend/.env` → `REGISTRY_ADDRESS`, `CREDIT_ADDRESS`, `MARKET_ADDRESS`
-- `frontend/.env` → `VITE_REGISTRY_ADDRESS`, `VITE_CREDIT_ADDRESS`, `VITE_MARKET_ADDRESS`
-
-### 3. Start backend
-
-```bash
-cd backend
-npm run dev
-# → http://localhost:4000  (health check at /health)
-```
-
-### 4. Start frontend
-
-```bash
-cd frontend
-npm run dev
-# → http://localhost:5173
-```
-
-Open the frontend, connect MetaMask on Sepolia, and run the full flow (register → approve → mint → list → buy → retire).
+Live sync: cron-job.org → `https://your-deployment.vercel.app/api/sync` every 1 min (free, bypasses Vercel's daily cron limit).
 
 ---
 
 ## Quality gates
 
+Every push runs GitHub Actions:
+
 ```bash
-npm run lint            # ESLint (TS/JS)
-npm run lint:sol        # solhint (Solidity)
-npm run format:check    # Prettier
-npm run test:contracts  # Hardhat tests
-npm run test:backend    # Jest
+npm run lint              # ESLint on TS/JS (zero warnings allowed)
+npm run lint:sol          # Solhint on Solidity
+npm run format:check      # Prettier diff check
+npm run test:contracts    # Hardhat + Chai
 ```
 
-CI runs all of the above on every push/PR — see `.github/workflows/ci.yml`.
+Pre-commit hooks (Husky + lint-staged) format and lint changed files automatically.
 
-Husky + lint-staged auto-format and lint on `git commit`.
+### Test coverage (Hardhat)
+
+```
+File                  |  % Stmts | % Branch |  % Funcs |  % Lines |
+----------------------|----------|----------|----------|----------|
+ contracts/           |    90.91 |    61.54 |    83.33 |    91.18 |
+  CarbonCredit.sol    |    81.82 |    62.50 |    60.00 |    83.33 |
+  Marketplace.sol     |    92.86 |    56.67 |   100.00 |    91.67 |
+  ProjectRegistry.sol |    93.75 |    71.43 |    85.71 |    95.00 |
+----------------------|----------|----------|----------|----------|
+```
 
 ---
 
-## Deployed addresses (Sepolia)
+## Design decisions
 
-| Contract        | Address                                      | Etherscan                                                                                    |
-| --------------- | -------------------------------------------- | -------------------------------------------------------------------------------------------- |
-| ProjectRegistry | `0x86B861a6F7E4B10CD96B7491fFA6a0967441142b` | [view](https://sepolia.etherscan.io/address/0x86B861a6F7E4B10CD96B7491fFA6a0967441142b#code) |
-| CarbonCredit    | `0x4272be407BA26d9aD469E5951e549eD36932bB9E` | [view](https://sepolia.etherscan.io/address/0x4272be407BA26d9aD469E5951e549eD36932bB9E#code) |
-| Marketplace     | `0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403` | [view](https://sepolia.etherscan.io/address/0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403#code) |
+Full rationale in [`report.md`](./report.md). Headlines:
+
+- **ERC-1155 over ERC-20/721** — one contract, many project batches, each fungible internally (preserves provenance without per-credit NFT overhead)
+- **AccessControl verifier role** — approval and issuance gated behind a revocable role; admin can rotate it. In production would be a multisig
+- **Escrowed marketplace with reentrancy guard** — checks-effects-interactions on buys, sellers deposit credits up-front so there's nothing to rug
+- **Polling indexer with checkpoint** — serverless can't keep WebSocket subscriptions; every run reads the last-processed block from Mongo and `eth_getLogs`-scans in 45k-block chunks (under public-RPC's 50k cap)
+- **Public read, wallet-gated write** — visitors can browse everything without installing a wallet; write actions show an Install Wallet card if no provider is detected
+- **Neo-Brutalist design system** — thick black borders, hard offset shadows, monospace display, high-contrast palette. Accessible by default, distinctive by choice
 
 ---
 
-## Project layout
+## Security considerations
 
-```
-contracts/      Hardhat project (Solidity, tests, deploy scripts)
-backend/        Express + Mongoose + indexer + Pinata
-frontend/       React + Vite + Tailwind (Neo-Brutalist)
-.claude/        Project-local Claude Code config + skills
-.agents/skills/ Solidity dev skills (test-hardhat, audit, gas-optimize)
-```
+- All three contracts use **custom errors** (gas-efficient + specific), not string reverts
+- `Marketplace.buy` follows **checks → effects → interactions** strictly
+- `ReentrancyGuard` on `buy`/`cancel`
+- Protocol fee hard-capped at **10% (1000 bps)** in the constructor and in `setFee`
+- Verifier role (capable of approving fraudulent projects) is **revocable** by the admin; the admin should be a multisig in production
+- Pinata JWT and deployer private keys live only in environment variables — `.env` is gitignored across all three workspaces
+- Backend endpoints validate request bodies with **Zod**; uploaded images are capped at 4 MB
+
+Known limitations (detailed in [`report.md`](./report.md)):
+
+- A compromised verifier can approve arbitrary projects (mitigated in production via multisig)
+- IPFS pins depend on Pinata availability; pinning to a second gateway would improve durability
+- Real-world MRV (measurement, reporting, verification) is out of scope for this coursework deliverable
+
+---
+
+## Acknowledgements
+
+Built by [Rajdeep Chaudhari](https://rajdeepchaudhari.com) for CN6035. Smart-contract scaffolding uses [OpenZeppelin Contracts](https://github.com/OpenZeppelin/openzeppelin-contracts). Design language takes cues from the neo-brutalist web movement.
 
 ## License
 
-MIT
+MIT — see [LICENSE](./LICENSE) (if present) or the `license` field in `package.json`.
