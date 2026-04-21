@@ -7,7 +7,7 @@ function short(addr: string) {
 }
 
 export default function NavBar() {
-  const { address, chainId, connect, switchToTarget } = useWallet();
+  const { address, chainId, connect, switchToTarget, hasWallet } = useWallet();
   const wrongNet = address && chainId !== CHAIN_ID;
 
   const linkCls = ({ isActive }: { isActive: boolean }) =>
@@ -52,13 +52,23 @@ export default function NavBar() {
             ) : (
               <span className="brut-tag bg-ink">{short(address)}</span>
             )
-          ) : (
+          ) : hasWallet ? (
             <button
               onClick={connect}
               className="brut-btn bg-yellow px-3 py-1.5 text-[0.72rem] text-ink"
             >
               Connect Wallet
             </button>
+          ) : (
+            <a
+              href="https://metamask.io/download/"
+              target="_blank"
+              rel="noreferrer"
+              title="No wallet detected — install MetaMask"
+              className="brut-btn bg-red px-3 py-1.5 text-[0.72rem] text-cream"
+            >
+              Install Wallet ↗
+            </a>
           )}
         </nav>
       </div>

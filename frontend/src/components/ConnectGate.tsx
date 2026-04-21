@@ -1,6 +1,7 @@
 import { ReactNode } from 'react';
 import { useWallet } from '../hooks/useWallet';
 import { CHAIN_ID } from '../lib/contracts';
+import InstallWalletCard from './InstallWalletCard';
 
 interface Props {
   children: ReactNode;
@@ -9,7 +10,11 @@ interface Props {
 }
 
 export default function ConnectGate({ children, action }: Props) {
-  const { address, chainId, connect, switchToTarget } = useWallet();
+  const { address, chainId, connect, switchToTarget, hasWallet } = useWallet();
+
+  if (!hasWallet) {
+    return <InstallWalletCard action={action} />;
+  }
 
   if (!address) {
     return (

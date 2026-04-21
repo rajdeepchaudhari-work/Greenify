@@ -75,12 +75,12 @@ export default function Footer() {
             </li>
             <li>
               <a
-                href="https://eagerhq.com"
+                href="https://rajdeepchaudhari.com"
                 target="_blank"
                 rel="noreferrer"
                 className="hover:text-yellow"
               >
-                EagerHQ.com ↗
+                rajdeepchaudhari.com ↗
               </a>
             </li>
           </ul>
@@ -92,21 +92,12 @@ export default function Footer() {
           <span>
             Built by{' '}
             <a
-              href="https://github.com/rajdeepchaudhari-work"
+              href="https://rajdeepchaudhari.com"
               target="_blank"
               rel="noreferrer"
               className="font-bold text-yellow hover:underline"
             >
               Rajdeep Chaudhari
-            </a>{' '}
-            · Concept by{' '}
-            <a
-              href="https://eagerhq.com"
-              target="_blank"
-              rel="noreferrer"
-              className="font-bold text-yellow hover:underline"
-            >
-              EagerHQ.com
             </a>
           </span>
         </div>

@@ -21,6 +21,7 @@ export interface WalletState {
   connect: () => Promise<void>;
   switchToTarget: () => Promise<void>;
   error: string | null;
+  hasWallet: boolean;
 }
 
 const WalletContext = createContext<WalletState | null>(null);
@@ -91,7 +92,17 @@ export function WalletProvider({ children }: { children: ReactNode }) {
     };
   }, [refresh]);
 
-  const value: WalletState = { address, chainId, provider, signer, connect, switchToTarget, error };
+  const hasWallet = typeof window !== 'undefined' && !!window.ethereum;
+  const value: WalletState = {
+    address,
+    chainId,
+    provider,
+    signer,
+    connect,
+    switchToTarget,
+    error,
+    hasWallet,
+  };
   return createElement(WalletContext.Provider, { value }, children);
 }
 
