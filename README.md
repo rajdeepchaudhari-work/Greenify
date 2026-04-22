@@ -86,9 +86,9 @@ Greenify lets industries and environmental projects trade carbon credits without
 
 | Contract                | Address                                      | Etherscan                                                                                             |
 | ----------------------- | -------------------------------------------- | ----------------------------------------------------------------------------------------------------- |
-| ProjectRegistry         | `0x86B861a6F7E4B10CD96B7491fFA6a0967441142b` | [view source ↗](https://sepolia.etherscan.io/address/0x86B861a6F7E4B10CD96B7491fFA6a0967441142b#code) |
-| CarbonCredit (ERC-1155) | `0x4272be407BA26d9aD469E5951e549eD36932bB9E` | [view source ↗](https://sepolia.etherscan.io/address/0x4272be407BA26d9aD469E5951e549eD36932bB9E#code) |
-| Marketplace             | `0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403` | [view source ↗](https://sepolia.etherscan.io/address/0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403#code) |
+| ProjectRegistry         | `0xCC99Ef02ee49bA27AE102B087219892F9eD812e8` | [view source ↗](https://sepolia.etherscan.io/address/0xCC99Ef02ee49bA27AE102B087219892F9eD812e8#code) |
+| CarbonCredit (ERC-1155) | `0x02eeBE9DcCC6499a2eaA4C344A1773C3F7606c5B` | [view source ↗](https://sepolia.etherscan.io/address/0x02eeBE9DcCC6499a2eaA4C344A1773C3F7606c5B#code) |
+| Marketplace             | `0x62eE925038f472E4E4a9D59B78E1e29A19112486` | [view source ↗](https://sepolia.etherscan.io/address/0x62eE925038f472E4E4a9D59B78E1e29A19112486#code) |
 
 All three are **source-verified** on Etherscan; ABIs and read/write interfaces are browsable without the repo.
 

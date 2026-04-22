@@ -61,7 +61,7 @@ export default function Landing() {
               Launch App →
             </Link>
             <a
-              href="https://sepolia.etherscan.io/address/0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403#code"
+              href="https://sepolia.etherscan.io/address/0x62eE925038f472E4E4a9D59B78E1e29A19112486#code"
               target="_blank"
               rel="noreferrer"
               className="brut-btn bg-yellow px-7 py-4 text-[0.88rem] text-ink"
