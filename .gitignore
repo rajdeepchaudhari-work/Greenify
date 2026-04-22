@@ -53,6 +53,16 @@ backend.legacy/
 # internal copy deck (not part of the technical deliverable)
 content.md
 
+# Task 2 demonstration materials (submitted separately to Moodle)
+slides/
+DEMO-SCRIPT.md
+
+# Technical report sources (submitted separately as the DOCX file)
+Greenify-Report.tex
+Greenify-Report.docx
+report.md
+images/
+
 # ts build artifact
 frontend/tsconfig.tsbuildinfo
 .vercel

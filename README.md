@@ -12,7 +12,6 @@ A hybrid DApp for trading tokenised carbon credits on Ethereum. Built as the CN6
 ![Network](https://img.shields.io/badge/network-Sepolia-3c3c3d)
 
 **🔗 Live demo:** [greenifyrc.vercel.app](https://greenifyrc.vercel.app)
-**🧾 Technical report:** [`report.md`](./report.md)
 **📖 First-time setup:** [`SETUP.md`](./SETUP.md)
 
 ---
@@ -76,7 +75,6 @@ Greenify lets industries and environmental projects trade carbon credits without
 ├── .github/workflows/     CI: lint, format-check, tests on every push
 ├── README.md              You are here
 ├── SETUP.md               Step-by-step first run
-├── report.md              500–2000 word technical report
 └── CHANGELOG.md
 ```
 
@@ -168,7 +166,7 @@ File                  |  % Stmts | % Branch |  % Funcs |  % Lines |
 
 ## Design decisions
 
-Full rationale in [`report.md`](./report.md). Headlines:
+Headlines (full rationale in the submitted technical report):
 
 - **ERC-1155 over ERC-20/721** — one contract, many project batches, each fungible internally (preserves provenance without per-credit NFT overhead)
 - **AccessControl verifier role** — approval and issuance gated behind a revocable role; admin can rotate it. In production would be a multisig
@@ -189,7 +187,7 @@ Full rationale in [`report.md`](./report.md). Headlines:
 - Pinata JWT and deployer private keys live only in environment variables — `.env` is gitignored across all three workspaces
 - Backend endpoints validate request bodies with **Zod**; uploaded images are capped at 4 MB
 
-Known limitations (detailed in [`report.md`](./report.md)):
+Known limitations:
 
 - A compromised verifier can approve arbitrary projects (mitigated in production via multisig)
 - IPFS pins depend on Pinata availability; pinning to a second gateway would improve durability
