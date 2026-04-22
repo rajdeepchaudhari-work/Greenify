@@ -21,6 +21,7 @@
 \usepackage{graphicx}
 \usepackage{xcolor}
 \usepackage{hyperref}
+\usepackage{xurl} % break long URLs at any char so they stay in margins
 \usepackage{fancyhdr}
 \usepackage{titlesec}
 \usepackage{booktabs}
@@ -160,21 +161,20 @@ calls I did, and where I would take it next.
 \begin{figure}[H]
 \centering
 \begin{tikzpicture}[
-    node distance=0.9cm and 1.1cm,
+    node distance=1.3cm and 1.6cm,
     every node/.style={font=\small},
     box/.style={
         rectangle, draw=ink, line width=0.8pt,
         rounded corners=2pt, align=center,
-        minimum width=3.2cm, minimum height=1.25cm,
+        minimum width=3.5cm, minimum height=1.3cm,
         fill=cream
     },
     hbox/.style={box, fill=code-bg},
     chain/.style={box, fill=accent!10, draw=accent, text=accent},
-    ipfs/.style={box, fill=accent3!10, draw=accent3, text=accent3},
     db/.style={box, fill=accent2!10, draw=accent2, text=accent2},
-    layer/.style={font=\scriptsize\bfseries\color{muted}, inner sep=1pt},
+    layer/.style={font=\scriptsize\bfseries\color{muted}, inner sep=2pt},
     arr/.style={->, >={Stealth[length=4pt]}, line width=0.7pt, draw=muted},
-    arrLbl/.style={font=\tiny\color{muted}, fill=cream, inner sep=1pt}
+    arrLbl/.style={font=\tiny\color{muted}, fill=cream, inner sep=1.5pt, rounded corners=1pt}
 ]
 
 % ---- Row 1: Client ----
@@ -182,35 +182,35 @@ calls I did, and where I would take it next.
 \node[box, right=of user] (spa) {React + Vite SPA\\\scriptsize ethers v6, Tailwind};
 
 % ---- Row 2: Edge ----
-\node[hbox, below=of spa] (api) {Vercel serverless\\\scriptsize \texttt{/api/*} (Node)};
 \node[hbox, below=of user] (gate) {Pinata (IPFS)\\\scriptsize Metadata pinning};
+\node[hbox, below=of spa]  (api)  {Vercel serverless\\\scriptsize \texttt{/api/*} (Node)};
 
-% ---- Row 3: Data + chain ----
-\node[db, below=of api] (mongo) {MongoDB Atlas\\\scriptsize Event cache};
-\node[chain, right=1.3cm of api] (chain) {Ethereum Sepolia\\\scriptsize ProjectRegistry\\\scriptsize CarbonCredit (ERC-1155)\\\scriptsize Marketplace};
+% ---- Row 3: State ----
+\node[db,    below=of gate] (mongo) {MongoDB Atlas\\\scriptsize Event cache};
+\node[chain, below=of api]  (chain) {Ethereum Sepolia\\\scriptsize ProjectRegistry\\\scriptsize CarbonCredit (ERC-1155)\\\scriptsize Marketplace};
 
 % ---- Arrows ----
 \draw[arr] (user) -- (spa)     node[arrLbl, midway, above] {UI};
 \draw[arr] (spa)  -- (api)     node[arrLbl, midway, right] {\texttt{fetch /api}};
-\draw[arr] (spa.east) .. controls +(2,0) and +(2,1) .. (chain.north)
-    node[arrLbl, pos=0.6, above right] {signed tx};
-\draw[arr] (api)  -- (chain.west) node[arrLbl, midway, above] {JSON-RPC};
-\draw[arr] (chain.south west) .. controls +(-1,-0.8) and +(0.6,-0.3) .. (mongo.east)
-    node[arrLbl, pos=0.4, below] {logs};
-\draw[arr] (api)  -- (mongo)   node[arrLbl, midway, right] {upsert};
-\draw[arr] (spa)  -- (gate.north east)  node[arrLbl, pos=0.4, above] {upload};
-\draw[arr] (api)  -| (gate.south east) node[arrLbl, pos=0.25, above] {pin};
-
-% ---- Layer labels ----
-\node[layer, above=0.15cm of user] {CLIENT};
-\node[layer, left=0.2cm of api.west, anchor=east] {EDGE};
-\node[layer, left=0.2cm of mongo.west, anchor=east] {STATE};
+\draw[arr] (user) -- (gate)    node[arrLbl, midway, left]  {upload};
+\draw[arr] (api)  -- (gate)    node[arrLbl, midway, above] {pin};
+\draw[arr] (api)  -- (chain)   node[arrLbl, midway, right] {JSON-RPC};
+\draw[arr] (api)  -- (mongo)   node[arrLbl, midway, above] {upsert};
+\draw[arr] (chain.west) -- (mongo.east) node[arrLbl, midway, above] {logs};
+\draw[arr] (spa.east) .. controls +(1.6,0) and +(1.6,1.3) .. (chain.east)
+    node[arrLbl, pos=0.55, right] {signed tx};
 
 \begin{scope}[on background layer]
-    \node[draw=muted!30, dashed, inner sep=6pt, fit=(user)(spa)]        {};
-    \node[draw=muted!30, dashed, inner sep=6pt, fit=(gate)(api)]        {};
-    \node[draw=muted!30, dashed, inner sep=6pt, fit=(mongo)(chain)]     {};
+    \node[draw=muted!30, dashed, inner sep=10pt, fit=(user)(spa)]   (clientGroup) {};
+    \node[draw=muted!30, dashed, inner sep=10pt, fit=(gate)(api)]   (edgeGroup)   {};
+    \node[draw=muted!30, dashed, inner sep=10pt, fit=(mongo)(chain)](stateGroup)  {};
 \end{scope}
+
+% ---- Layer labels (placed OUTSIDE and to the LEFT of each group) ----
+\node[layer, anchor=east] at ([xshift=-0.35cm]clientGroup.west) {CLIENT};
+\node[layer, anchor=east] at ([xshift=-0.35cm]edgeGroup.west)   {EDGE};
+\node[layer, anchor=east] at ([xshift=-0.35cm]stateGroup.west)  {STATE};
+
 \end{tikzpicture}
 \caption{Greenify architecture. Three tiers with one job each. The chain owns truth; Mongo is a read-only mirror that can be rebuilt from event logs at any time.}
 \label{fig:arch}
