@@ -15,6 +15,12 @@
   margin-top: auto; /* pushes footer to the bottom of the flex column */
 }
 
+/* Speaker notes are presenter-only — never render in the slide. */
+.slide > aside.notes,
+.slide > .notes {
+  display: none !important;
+}
+
 /* Cover: big hero at top, meta + KPI below, footer pinned. */
 .cover-layout { gap: 0.9rem; }
 .cover-text h1.h1 { font-size: clamp(4rem, 12vw, 10rem); line-height: 0.88; }
