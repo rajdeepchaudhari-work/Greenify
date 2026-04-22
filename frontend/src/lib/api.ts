@@ -1,3 +1,11 @@
+/**
+ * Typed client for the Vercel serverless REST API (frontend/api/*).
+ *
+ * All endpoints are read-only except `pinProjectMetadata` which pushes
+ * project metadata + optional image to IPFS through Pinata. Write actions
+ * against the blockchain go directly to the contracts via ethers, NOT
+ * through this client.
+ */
 import { API_URL } from './contracts';
 
 function url(path: string): string {

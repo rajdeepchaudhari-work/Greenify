@@ -1,3 +1,10 @@
+/**
+ * Frontend contract addresses + ABIs.
+ *
+ * All values come from Vite env vars (see `frontend/.env.example`).
+ * `API_URL` defaults to same-origin so the deployed Vercel site calls
+ * `/api/*` without requiring an explicit env var.
+ */
 export const CHAIN_ID = Number(import.meta.env.VITE_CHAIN_ID ?? 11155111);
 export const API_URL = import.meta.env.VITE_API_URL ?? '';
 export const PUBLIC_RPC_URL =

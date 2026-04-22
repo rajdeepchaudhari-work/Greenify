@@ -1,3 +1,20 @@
+/**
+ * Checkpointed event-log indexer for the Greenify contracts.
+ *
+ * Design:
+ *  - Stateless execution model (each invocation is a fresh serverless
+ *    function), so we persist a `lastBlock` checkpoint in Mongo's Meta
+ *    collection.
+ *  - On each run: read checkpoint, query `eth_getLogs` in chunked
+ *    ranges (public RPCs cap at 50k blocks per call, so we use 45k to
+ *    stay safely inside the cap), upsert each event into Mongo, then
+ *    advance the checkpoint to `latest`.
+ *  - All writes are Mongo upserts keyed by the event's natural id
+ *    (projectId, listingId), making the whole pipeline **idempotent**:
+ *    running sync twice on the same range is a no-op.
+ *  - Wipe the Meta collection to force a full re-sync from
+ *    (latest - 40k) blocks on the next run.
+ */
 import type { Contract, EventLog, Log } from 'ethers';
 import { contracts, getProvider } from './chain.js';
 import { Project, Listing, Meta } from './models.js';

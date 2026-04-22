@@ -3,6 +3,21 @@ import { createElement } from 'react';
 import { BrowserProvider, JsonRpcSigner } from 'ethers';
 import { CHAIN_ID } from '../lib/contracts';
 
+/**
+ * Wallet context, wraps MetaMask (EIP-1193) via ethers v6 BrowserProvider.
+ *
+ * Exposes:
+ *  - connected address + chainId
+ *  - a ready-to-use signer for contract writes
+ *  - `connect()` to open the MetaMask popup
+ *  - `switchToTarget()` to prompt a network switch to CHAIN_ID
+ *  - `hasWallet` boolean so the UI can render an Install Wallet CTA when
+ *    no `window.ethereum` is injected (e.g. mobile Safari, private browse)
+ *
+ * The context is read-through: every component gets the same state,
+ * so wallet changes in one place (navbar Connect) propagate everywhere
+ * (app pages, write actions).
+ */
 declare global {
   interface Window {
     ethereum?: {

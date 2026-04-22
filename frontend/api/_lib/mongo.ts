@@ -1,3 +1,12 @@
+/**
+ * MongoDB connection helper, serverless-friendly.
+ *
+ * Caches the Mongoose connection promise on `global` so warm serverless
+ * invocations reuse the existing pool instead of creating a new socket
+ * on every cold start. Without this, a single serverless function would
+ * open a new connection per request and exhaust Atlas's free-tier
+ * connection budget (500).
+ */
 import mongoose from 'mongoose';
 import { config } from './config.js';
 

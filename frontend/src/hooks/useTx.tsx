@@ -2,6 +2,15 @@ import { createContext, useCallback, useContext, useState, ReactNode } from 'rea
 import { createElement } from 'react';
 import type { ContractTransactionResponse } from 'ethers';
 
+/**
+ * Global transaction state machine shared across the app.
+ *
+ * Wraps any ContractTransactionResponse-returning function with a
+ * four-stage lifecycle (`signing → mining → success | error`). The
+ * {@link TxBanner} component listens to this context and renders the
+ * appropriate UI at the top of the screen. Idle and success stages
+ * auto-dismiss so UI returns to "calm" once a transaction settles.
+ */
 export type TxStage = 'idle' | 'signing' | 'mining' | 'success' | 'error';
 
 export interface TxState {

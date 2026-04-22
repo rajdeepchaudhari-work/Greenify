@@ -1,3 +1,11 @@
+/**
+ * Cached ethers providers + contract bindings for the serverless API.
+ *
+ * Forces HTTPS over WebSocket because Vercel serverless functions
+ * cannot hold long-lived subscriptions across invocations. The ABIs
+ * declared below are read-only (events + view funcs) because every
+ * write goes through the frontend via MetaMask, not through the API.
+ */
 import { Contract, JsonRpcProvider, WebSocketProvider, type Provider } from 'ethers';
 import { config } from './config.js';
 
