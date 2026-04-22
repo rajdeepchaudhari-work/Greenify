@@ -1,5 +1,17 @@
 /* Greenify deck custom tweaks, scoped to this deck. */
 
+/* Tighter slide padding; leave clearance at the bottom so the footer
+   doesn't overlap content. */
+.slide {
+  padding: 40px 72px 80px !important;
+  overflow: hidden;
+}
+
+/* Give every slide's direct content a guaranteed bottom gap above the footer. */
+.slide > :last-of-type {
+  margin-bottom: 0;
+}
+
 :root {
   --g-red:     #E74C3C;
   --g-yellow:  #FFD93D;
@@ -587,15 +599,53 @@
 .cov-total .cov-bar span { background: var(--g-ink); }
 .cov-n { font-weight: 700; text-align: right; }
 
+/* ---------- Screenshots (demo + quality) ---------- */
+.shot-row {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.7rem;
+}
+.proof-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.7rem;
+}
+.shot-fig {
+  margin: 0;
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+  overflow: hidden;
+}
+.shot-fig img {
+  display: block;
+  width: 100%;
+  height: 11rem;
+  object-fit: cover;
+  object-position: top;
+  border-bottom: 2px solid var(--g-ink);
+}
+.proof-row .shot-fig img { height: 10rem; }
+.shot-fig figcaption {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  text-align: center;
+  padding: 0.3rem 0.4rem;
+  background: var(--g-cream);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
 /* ---------- Illustrations ---------- */
 
 /* Cover slide: illustration top-right, text takes the left */
 .cover-layout { position: relative; }
 .cover-illo {
   position: absolute;
-  top: 2rem;
-  right: 2.5rem;
-  width: min(260px, 26vw);
+  top: 1.2rem;
+  right: 1.8rem;
+  width: min(210px, 22vw);
   height: auto;
   z-index: 0;
   pointer-events: none;
@@ -650,14 +700,18 @@
 /* ---------- Slide number + footer ---------- */
 .deck-footer {
   position: absolute;
-  bottom: 1.5rem;
-  left: 2rem;
-  right: 2rem;
+  bottom: 20px;
+  left: 72px;
+  right: 72px;
+  padding-top: 10px;
+  border-top: 2px solid var(--g-ink);
   display: flex;
   justify-content: space-between;
   font-family: var(--font-mono, monospace);
   font-size: 0.65rem;
-  opacity: 0.5;
+  background: inherit;
+  opacity: 0.75;
+  z-index: 5;
 }
 .slide-number::before {
   content: attr(data-current) " / " attr(data-total);
