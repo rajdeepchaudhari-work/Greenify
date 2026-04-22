@@ -47,8 +47,16 @@
     </div>
   </div>
 
+  <div class="kpi-strip mt-m">
+    <div class="kpi"><span class="kpi-n">3</span><span class="kpi-l">Verified contracts</span></div>
+    <div class="kpi"><span class="kpi-n">91%</span><span class="kpi-l">Test coverage</span></div>
+    <div class="kpi"><span class="kpi-n">13</span><span class="kpi-l">Passing tests</span></div>
+    <div class="kpi"><span class="kpi-n">0</span><span class="kpi-l">Lint warnings</span></div>
+    <div class="kpi"><span class="kpi-n">ERC-1155</span><span class="kpi-l">Token standard</span></div>
+  </div>
+
   <div class="deck-footer">
-    <span class="mono">#blockchain #carbon #dapp</span>
+    <span class="mono">#blockchain #carbon #dapp · live on sepolia</span>
     <span class="slide-number" data-current="1" data-total="10"></span>
   </div>
 
@@ -63,17 +71,41 @@
 <!-- ===================================================== -->
 <!-- 2. AGENDA                                               -->
 <!-- ===================================================== -->
-<section class="slide" data-title="Agenda">
-  <p class="kicker">agenda</p>
-  <h2 class="h2">What this talk covers</h2>
-  <div class="stack mt-l">
-    <div class="agenda-row"><span class="num">01</span><span class="t">The problem: carbon markets are a black box</span><span class="d">~1 min</span></div>
-    <div class="agenda-row"><span class="num">02</span><span class="t">System overview &amp; tech stack</span><span class="d">~1 min</span></div>
-    <div class="agenda-row"><span class="num">03</span><span class="t">Smart contract design (3 contracts)</span><span class="d">~2 min</span></div>
-    <div class="agenda-row"><span class="num">04</span><span class="t">Blockchain interaction lifecycle</span><span class="d">~1 min</span></div>
-    <div class="agenda-row"><span class="num">05</span><span class="t">Live demo of the full flow</span><span class="d">~3 min</span></div>
-    <div class="agenda-row"><span class="num">06</span><span class="t">Quality, security, limitations</span><span class="d">~2 min</span></div>
+<section class="slide agenda-layout" data-title="Agenda">
+  <div class="agenda-main">
+    <p class="kicker">agenda</p>
+    <h2 class="h2">What this talk covers</h2>
+    <div class="stack mt-l">
+      <div class="agenda-row"><span class="num">01</span><span class="t">The problem: carbon markets are a black box</span><span class="d">~1 min</span></div>
+      <div class="agenda-row"><span class="num">02</span><span class="t">System overview &amp; tech stack</span><span class="d">~1 min</span></div>
+      <div class="agenda-row"><span class="num">03</span><span class="t">Smart contract design (3 contracts)</span><span class="d">~2 min</span></div>
+      <div class="agenda-row"><span class="num">04</span><span class="t">Blockchain interaction lifecycle</span><span class="d">~1 min</span></div>
+      <div class="agenda-row"><span class="num">05</span><span class="t">Live demo of the full flow</span><span class="d">~3 min</span></div>
+      <div class="agenda-row"><span class="num">06</span><span class="t">Quality, security, limitations</span><span class="d">~2 min</span></div>
+    </div>
   </div>
+  <aside class="agenda-side">
+    <div class="side-card">
+      <span class="side-k">MODULE</span>
+      <span class="side-v">CN6035</span>
+      <span class="side-sub">Mobile &amp; Distributed Systems</span>
+    </div>
+    <div class="side-card">
+      <span class="side-k">TASK</span>
+      <span class="side-v">Task 2 · 30%</span>
+      <span class="side-sub">≤ 10-minute demonstration</span>
+    </div>
+    <div class="side-card">
+      <span class="side-k">DEMO</span>
+      <span class="side-v">Live on Sepolia</span>
+      <span class="side-sub">register → mint → trade → retire</span>
+    </div>
+    <div class="side-card side-card-red">
+      <span class="side-k">TODAY</span>
+      <span class="side-v">Ship it</span>
+      <span class="side-sub">Real contracts, real tx, real receipt</span>
+    </div>
+  </aside>
   <div class="deck-footer">
     <span class="mono">rajdeepchaudhari · 2026</span>
     <span class="slide-number" data-current="2" data-total="10"></span>
@@ -115,7 +147,21 @@
     </div>
   </div>
 
-  <blockquote class="citation mt-m">
+  <div class="vs-row mt-m">
+    <div class="vs-side vs-before">
+      <span class="vs-label">TODAY</span>
+      <b>Registries, PDFs, spreadsheets</b>
+      <small>Audit = email &amp; hope</small>
+    </div>
+    <div class="vs-arrow">→</div>
+    <div class="vs-side vs-after">
+      <span class="vs-label">GREENIFY</span>
+      <b>Public ledger, burned receipts</b>
+      <small>Audit = open a block explorer</small>
+    </div>
+  </div>
+
+  <blockquote class="citation mt-s">
     "More than 90% of rainforest carbon offsets by biggest certifier are worthless"
     <cite> — Greenfield, <em>The Guardian</em>, 2023</cite>
   </blockquote>
@@ -162,10 +208,12 @@
     </div>
   </div>
 
-  <p class="caption mt-m">
-    Mongo is a <b>read-only mirror</b> of on-chain events. Drop the DB,
-    next sync rebuilds it. The chain is always the source of truth.
-  </p>
+  <div class="props-row mt-m">
+    <span class="prop">✓ Mongo is a read-only mirror</span>
+    <span class="prop">✓ Idempotent indexer</span>
+    <span class="prop">✓ Chain = source of truth</span>
+    <span class="prop">✓ Public reads, wallet-gated writes</span>
+  </div>
 
   <div class="deck-footer">
     <span class="mono">rajdeepchaudhari · 2026</span>
@@ -188,7 +236,22 @@
   <p class="kicker">02b · tech stack</p>
   <h2 class="h2">Boring choices for a reason.</h2>
 
-  <table class="stack-table mt-l">
+  <div class="badge-row mt-s">
+    <span class="badge badge-red">Solidity 0.8.24</span>
+    <span class="badge badge-red">OpenZeppelin 5</span>
+    <span class="badge badge-red">Hardhat</span>
+    <span class="badge badge-red">ERC-1155</span>
+    <span class="badge badge-blue">React 18</span>
+    <span class="badge badge-blue">Vite 5</span>
+    <span class="badge badge-blue">ethers v6</span>
+    <span class="badge badge-blue">Tailwind 3</span>
+    <span class="badge badge-yellow">Vercel</span>
+    <span class="badge badge-yellow">MongoDB Atlas</span>
+    <span class="badge badge-yellow">Pinata IPFS</span>
+    <span class="badge badge-yellow">GitHub Actions</span>
+  </div>
+
+  <table class="stack-table mt-s">
     <thead>
       <tr><th>Layer</th><th>Tech</th><th>Why</th></tr>
     </thead>
@@ -261,9 +324,21 @@
     </div>
   </div>
 
-  <p class="caption mt-m">
-    Why ERC-1155? <b>ERC-20</b> loses per-project provenance; <b>ERC-721</b> over-models
-    (credits <em>are</em> fungible inside a project). ERC-1155 is the right shape (Radomski et al., 2018).
+  <pre class="code-block mt-m"><code><span class="kw">function</span> buy(<span class="ty">uint256</span> id, <span class="ty">uint256</span> amount) <span class="kw">external payable</span> nonReentrant {
+    <span class="cm">// checks</span>
+    <span class="kw">if</span> (!l.active)                           <span class="kw">revert</span> ListingInactive();
+    <span class="kw">if</span> (msg.value &lt; total)                    <span class="kw">revert</span> InsufficientPayment();
+    <span class="cm">// effects BEFORE external calls</span>
+    l.amount -= amount;
+    <span class="kw">if</span> (l.amount == 0) l.active = <span class="kw">false</span>;
+    <span class="cm">// interactions</span>
+    credits.safeTransferFrom(<span class="kw">address</span>(<span class="kw">this</span>), msg.sender, l.projectId, amount, <span class="st">""</span>);
+    _payout(l.seller, total - fee);
+    <span class="kw">emit</span> Sold(id, msg.sender, amount, total);
+}</code></pre>
+
+  <p class="caption">
+    Why ERC-1155? <b>ERC-20</b> loses provenance; <b>ERC-721</b> over-models (credits <em>are</em> fungible inside a project). ERC-1155 is the right shape (Radomski et al., 2018).
   </p>
 
   <div class="deck-footer">
@@ -313,6 +388,11 @@
       <div><b>Mongo upsert</b><br><small>idempotent by event id; frontend refreshes</small></div>
     </li>
   </ol>
+
+  <div class="event-sample mt-m">
+    <span class="event-chip">EMITTED EVENT</span>
+    <code>ProjectRegistered(id=<b>0</b>, owner=<b>0x2fAb…b8dD</b>, ipfsCid=<b>"bafkreih…"</b>)</code>
+  </div>
 
   <div class="deck-footer">
     <span class="mono">rajdeepchaudhari · 2026</span>
@@ -425,7 +505,14 @@
     </div>
   </div>
 
-  <div class="threat mt-m">
+  <div class="cov-bars mt-m">
+    <div class="cov-row"><span class="cov-file">ProjectRegistry.sol</span><div class="cov-bar"><span style="width:93.75%"></span></div><span class="cov-n">93.75%</span></div>
+    <div class="cov-row"><span class="cov-file">CarbonCredit.sol</span><div class="cov-bar"><span style="width:81.82%"></span></div><span class="cov-n">81.82%</span></div>
+    <div class="cov-row"><span class="cov-file">Marketplace.sol</span><div class="cov-bar"><span style="width:92.86%"></span></div><span class="cov-n">92.86%</span></div>
+    <div class="cov-row cov-total"><span class="cov-file">All files</span><div class="cov-bar"><span style="width:90.91%"></span></div><span class="cov-n">90.91%</span></div>
+  </div>
+
+  <div class="threat">
     <b>Threat model covered:</b>
     re-entrancy (CEI + <code>ReentrancyGuard</code>) ·
     unauthorised minting (<code>MINTER_ROLE</code>) ·
