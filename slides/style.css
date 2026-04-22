@@ -1,16 +1,32 @@
 /* Greenify deck custom tweaks, scoped to this deck. */
 
-/* Tighter slide padding; leave clearance at the bottom so the footer
-   doesn't overlap content. */
+/* Slide is a flex column: content flows top-to-bottom, footer pinned
+   at the bottom, any .spacer pushes remaining content down. */
 .slide {
-  padding: 40px 72px 80px !important;
+  padding: 48px 72px 36px !important;
+  display: flex !important;
+  flex-direction: column;
   overflow: hidden;
+  gap: 0.55rem;
 }
 
-/* Give every slide's direct content a guaranteed bottom gap above the footer. */
-.slide > :last-of-type {
-  margin-bottom: 0;
+/* Footer sits as a normal flex child at the bottom; nothing absolute. */
+.deck-footer {
+  margin-top: auto; /* pushes footer to the bottom of the flex column */
 }
+
+/* Cover: big hero at top, meta + KPI below, footer pinned. */
+.cover-layout { gap: 0.9rem; }
+.cover-text h1.h1 { font-size: clamp(4rem, 12vw, 10rem); line-height: 0.88; }
+.cover-text .lede { font-size: 1.25rem; }
+
+/* Give sections a bit of vertical rhythm. */
+.slide > h1,
+.slide > .cover-text,
+.slide > .h1 { margin-bottom: 0.4rem; }
+.slide > .kicker { margin-bottom: 0.1rem; }
+.slide > .h2 { margin-bottom: 0.5rem; }
+.slide > .lede { margin-bottom: 0.4rem; }
 
 :root {
   --g-red:     #E74C3C;
@@ -422,10 +438,15 @@
 
 /* ---------- Agenda side panel ---------- */
 .agenda-layout {
-  display: grid;
+  display: grid !important;
   grid-template-columns: 1fr 18rem;
-  gap: 2rem;
+  grid-template-rows: 1fr auto;
+  gap: 2rem 2rem;
   align-items: start;
+}
+.agenda-layout > .deck-footer {
+  grid-column: 1 / -1;
+  margin-top: auto;
 }
 .agenda-side {
   display: flex;
@@ -699,19 +720,15 @@
 
 /* ---------- Slide number + footer ---------- */
 .deck-footer {
-  position: absolute;
-  bottom: 20px;
-  left: 72px;
-  right: 72px;
   padding-top: 10px;
   border-top: 2px solid var(--g-ink);
   display: flex;
   justify-content: space-between;
   font-family: var(--font-mono, monospace);
-  font-size: 0.65rem;
-  background: inherit;
-  opacity: 0.75;
+  font-size: 0.72rem;
+  opacity: 0.85;
   z-index: 5;
+  font-weight: 600;
 }
 .slide-number::before {
   content: attr(data-current) " / " attr(data-total);
