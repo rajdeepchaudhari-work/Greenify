@@ -1,9 +1,10 @@
 /* Greenify deck custom tweaks, scoped to this deck. */
 
-/* Slide is a flex column: content flows top-to-bottom, footer pinned
-   at the bottom, any .spacer pushes remaining content down. */
+/* All slides: flex column, top-aligned, with a reserved bottom gutter so
+   the absolute-positioned footer never overlaps content. */
 .slide {
-  padding: 48px 72px 36px !important;
+  position: relative !important;
+  padding: 48px 72px 64px !important;
   display: flex !important;
   flex-direction: column;
   justify-content: flex-start !important;
@@ -11,9 +12,13 @@
   gap: 0.55rem;
 }
 
-/* Footer sits as a normal flex child at the bottom; nothing absolute. */
+/* Footer absolutely pinned so it works regardless of content length. */
 .deck-footer {
-  margin-top: auto; /* pushes footer to the bottom of the flex column */
+  position: absolute !important;
+  left: 72px !important;
+  right: 72px !important;
+  bottom: 20px !important;
+  margin: 0 !important;
 }
 
 /* Speaker notes are presenter-only — never render in the slide. */
