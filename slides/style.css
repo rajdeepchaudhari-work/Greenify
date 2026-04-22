@@ -6,6 +6,7 @@
   padding: 48px 72px 36px !important;
   display: flex !important;
   flex-direction: column;
+  justify-content: flex-start !important;
   overflow: hidden;
   gap: 0.55rem;
 }
