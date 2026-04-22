@@ -1,9 +1,9 @@
 /* Greenify deck custom tweaks, scoped to this deck. */
 
 /* All slides: flex column, top-aligned, with a reserved bottom gutter so
-   the absolute-positioned footer never overlaps content. */
+   the absolute-positioned footer never overlaps content. Keep base CSS's
+   position: absolute (it's what drives the active-slide stacking). */
 .slide {
-  position: relative !important;
   padding: 48px 72px 64px !important;
   display: flex !important;
   flex-direction: column;
