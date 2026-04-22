@@ -23,7 +23,8 @@
     "coverage",
     "contracts/artifacts",
     "contracts/cache",
-    "contracts/typechain-types"
+    "contracts/typechain-types",
+    "slides/assets"
   ],
   "rules": {
     "react/react-in-jsx-scope": "off",

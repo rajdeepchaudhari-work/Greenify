@@ -1,0 +1,394 @@
+/* Greenify deck custom tweaks, scoped to this deck. */
+
+:root {
+  --g-red:     #E74C3C;
+  --g-yellow:  #FFD93D;
+  --g-cream:   #FDF2E9;
+  --g-ink:     #0A0A0A;
+  --g-lavender:#E8DEF8;
+  --g-green:   #69F0AE;
+}
+
+/* ---------- Cover ---------- */
+.g-red { color: var(--g-red); }
+
+.cover-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2rem;
+  padding: 1rem 0;
+}
+.meta-block {
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  padding: 1rem 1.2rem;
+  box-shadow: 6px 6px 0 0 var(--g-ink);
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+.meta-k {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  text-transform: uppercase;
+  opacity: 0.6;
+}
+.meta-v { font-weight: 700; font-size: 1rem; color: var(--g-ink); }
+.meta-sub { font-size: 0.8rem; color: var(--g-ink); opacity: 0.7; }
+
+.video-cta {
+  display: inline-block;
+  padding: 0.6rem 1rem;
+  border: 3px solid var(--g-ink);
+  background: var(--g-yellow);
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+  font-family: var(--font-mono, monospace);
+  font-size: 0.85rem;
+}
+.video-cta a { margin-left: 0.5rem; }
+
+/* ---------- Agenda ---------- */
+.agenda-row {
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  gap: 1rem;
+  align-items: center;
+  padding: 0.7rem 1rem;
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+  margin-bottom: 0.5rem;
+}
+.agenda-row .num {
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  color: var(--g-red);
+  font-size: 0.9rem;
+  width: 2rem;
+}
+.agenda-row .t { font-weight: 600; }
+.agenda-row .d {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  opacity: 0.6;
+}
+
+/* ---------- Problem cards ---------- */
+.hl-red {
+  background: var(--g-red);
+  color: #fff;
+  padding: 0 0.3em;
+  border: 3px solid var(--g-ink);
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+}
+.grid3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.2rem;
+}
+.card {
+  border: 3px solid var(--g-ink);
+  padding: 1rem 1.2rem;
+  box-shadow: 6px 6px 0 0 var(--g-ink);
+  position: relative;
+}
+.card-yellow   { background: var(--g-yellow); color: var(--g-ink); }
+.card-red      { background: var(--g-red);    color: #fff; }
+.card-lavender { background: var(--g-lavender); color: var(--g-ink); }
+.card h3 {
+  font-size: 1.1rem;
+  margin: 0.5rem 0 0.3rem;
+  text-transform: uppercase;
+  letter-spacing: -0.01em;
+}
+.card p { font-size: 0.85rem; line-height: 1.45; }
+.card-num {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.75rem;
+  opacity: 0.8;
+  font-weight: 700;
+}
+
+.citation {
+  border-left: 4px solid var(--g-red);
+  padding: 0.5rem 1rem;
+  font-style: italic;
+  background: var(--g-cream);
+  font-size: 0.9rem;
+}
+.citation cite {
+  display: block;
+  margin-top: 0.3rem;
+  font-size: 0.75rem;
+  font-style: normal;
+  opacity: 0.7;
+}
+
+/* ---------- Architecture ---------- */
+.arch {
+  display: flex;
+  flex-direction: column;
+  gap: 0.8rem;
+}
+.arch-row {
+  display: grid;
+  grid-template-columns: 6rem 1fr 2rem 1fr;
+  gap: 1rem;
+  align-items: center;
+}
+.arch-layer-label {
+  font-family: var(--font-mono, monospace);
+  font-size: 0.7rem;
+  letter-spacing: 0.15em;
+  font-weight: 700;
+  color: var(--g-red);
+  text-align: right;
+}
+.arch-box {
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  padding: 0.7rem 1rem;
+  text-align: center;
+  font-weight: 600;
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+  font-size: 0.9rem;
+}
+.arch-box small { font-size: 0.7rem; font-weight: 400; opacity: 0.7; }
+.arch-arr {
+  text-align: center;
+  font-size: 1.4rem;
+  color: var(--g-red);
+}
+.arch-chain { background: var(--g-red); color: #fff; }
+.arch-db    { background: var(--g-lavender); }
+
+.caption {
+  font-size: 0.85rem;
+  opacity: 0.85;
+  max-width: 50em;
+}
+
+/* ---------- Stack table ---------- */
+.stack-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  border: 3px solid var(--g-ink);
+  font-size: 0.85rem;
+  background: #fff;
+  box-shadow: 6px 6px 0 0 var(--g-ink);
+}
+.stack-table th,
+.stack-table td {
+  padding: 0.6rem 0.9rem;
+  border-bottom: 2px solid var(--g-ink);
+  border-right: 2px solid var(--g-ink);
+  text-align: left;
+}
+.stack-table th {
+  background: var(--g-ink);
+  color: var(--g-cream);
+  font-family: var(--font-mono, monospace);
+  text-transform: uppercase;
+  font-size: 0.7rem;
+  letter-spacing: 0.1em;
+}
+.stack-table tr:last-child td { border-bottom: none; }
+.stack-table td:last-child,
+.stack-table th:last-child { border-right: none; }
+
+/* ---------- Contracts slide ---------- */
+.contracts {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1rem;
+}
+.contract-card {
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  padding: 0.9rem 1rem;
+  box-shadow: 6px 6px 0 0 var(--g-ink);
+  position: relative;
+  font-size: 0.82rem;
+}
+.contract-card h3 {
+  font-size: 1.05rem;
+  text-transform: uppercase;
+  margin: 0.5rem 0;
+  letter-spacing: -0.01em;
+}
+.contract-card h3 small { font-size: 0.65rem; opacity: 0.7; font-weight: 400; }
+.contract-card ul { margin: 0.5rem 0 0; padding-left: 1.1rem; font-size: 0.78rem; }
+.contract-card li { margin-bottom: 0.25rem; }
+.contract-card code {
+  background: var(--g-cream);
+  padding: 0 0.3em;
+  font-size: 0.75rem;
+  border-radius: 2px;
+}
+.chip {
+  display: inline-flex;
+  width: 1.6rem;
+  height: 1.6rem;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid var(--g-ink);
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+.chip-black { background: var(--g-ink); color: var(--g-yellow); }
+.chip-red { background: var(--g-red); color: #fff; }
+.chip-yellow { background: var(--g-yellow); color: var(--g-ink); }
+
+/* ---------- Interaction / lifecycle ---------- */
+.lifecycle {
+  list-style: none;
+  padding: 0;
+  counter-reset: step;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 0.8rem;
+}
+.lifecycle li {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  padding: 0.8rem 1rem;
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+  font-size: 0.85rem;
+}
+.step-num {
+  display: inline-flex;
+  width: 2rem;
+  height: 2rem;
+  align-items: center;
+  justify-content: center;
+  background: var(--g-red);
+  color: #fff;
+  font-family: var(--font-mono, monospace);
+  font-weight: 700;
+  border: 2px solid var(--g-ink);
+  flex: 0 0 auto;
+}
+.lifecycle code {
+  background: var(--g-cream);
+  padding: 0 0.2em;
+  font-size: 0.75rem;
+}
+
+/* ---------- Demo script ---------- */
+.demo-script {
+  display: flex;
+  flex-direction: column;
+  gap: 0.7rem;
+}
+.demo-step {
+  display: grid;
+  grid-template-columns: auto 1fr;
+  gap: 1rem;
+  align-items: center;
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  padding: 0.7rem 1rem;
+  box-shadow: 4px 4px 0 0 var(--g-ink);
+  font-size: 0.9rem;
+}
+.demo-chip {
+  font-family: var(--font-mono, monospace);
+  background: var(--g-yellow);
+  border: 2px solid var(--g-ink);
+  padding: 0.1rem 0.5rem;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.demo-step p { margin: 0.2rem 0 0; font-size: 0.78rem; opacity: 0.8; }
+
+/* ---------- Quality ---------- */
+.quality-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1rem;
+}
+.q-card {
+  border: 3px solid var(--g-ink);
+  background: #fff;
+  padding: 1rem;
+  box-shadow: 6px 6px 0 0 var(--g-ink);
+  text-align: center;
+}
+.q-num {
+  font-family: var(--font-mono, monospace);
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: var(--g-red);
+  line-height: 1;
+}
+.q-label { font-weight: 700; margin-top: 0.4rem; font-size: 0.85rem; }
+.q-sub { font-size: 0.72rem; opacity: 0.7; margin-top: 0.2rem; }
+
+.threat {
+  border: 3px solid var(--g-ink);
+  background: var(--g-cream);
+  padding: 0.8rem 1rem;
+  font-size: 0.82rem;
+  line-height: 1.5;
+}
+
+/* ---------- Closing ---------- */
+.two-col {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2rem;
+}
+.sub-h {
+  font-family: var(--font-mono, monospace);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-size: 0.75rem;
+  color: var(--g-red);
+  margin-bottom: 0.5rem;
+}
+.limit-list {
+  list-style: none;
+  padding: 0;
+}
+.limit-list li {
+  border-left: 3px solid var(--g-red);
+  padding: 0.4rem 0.8rem;
+  margin-bottom: 0.4rem;
+  font-size: 0.85rem;
+  background: var(--g-cream);
+}
+.ref-list {
+  font-size: 0.75rem;
+  line-height: 1.5;
+  padding-left: 1.2rem;
+}
+.ref-list li { margin-bottom: 0.35rem; }
+.thank-you {
+  text-align: center;
+  font-size: 1.1rem;
+  padding: 1rem;
+  border-top: 3px solid var(--g-ink);
+}
+
+/* ---------- Slide number + footer ---------- */
+.deck-footer {
+  position: absolute;
+  bottom: 1.5rem;
+  left: 2rem;
+  right: 2rem;
+  display: flex;
+  justify-content: space-between;
+  font-family: var(--font-mono, monospace);
+  font-size: 0.65rem;
+  opacity: 0.5;
+}
+.slide-number::before {
+  content: attr(data-current) " / " attr(data-total);
+}

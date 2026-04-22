@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en" data-themes="neo-brutalism">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Greenify · CN6035 Task 2 Demonstration</title>
+<link rel="stylesheet" href="assets/fonts.css">
+<link rel="stylesheet" href="assets/base.css">
+<link rel="stylesheet" id="theme-link" href="assets/themes/neo-brutalism.css">
+<link rel="stylesheet" href="assets/animations/animations.css">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="deck">
+
+<!-- ===================================================== -->
+<!-- 1. COVER                                                -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Cover">
+  <p class="kicker">CN6035 · Task 2 · Demonstration</p>
+  <h1 class="h1 anim-fade-up" data-anim="fade-up">
+    <span class="g-red">G</span>REENIFY
+  </h1>
+  <p class="lede mt-m">
+    Carbon credits on a public ledger.<br>
+    <b>Mint. Trade. Retire. All on-chain.</b>
+  </p>
+
+  <div class="cover-meta mt-l">
+    <div class="meta-block">
+      <span class="meta-k">AUTHOR</span>
+      <span class="meta-v">Rajdeep Chaudhari</span>
+      <span class="meta-sub">Student ID 2522821</span>
+    </div>
+    <div class="meta-block">
+      <span class="meta-k">STACK</span>
+      <span class="meta-v">Solidity · Hardhat · Vite</span>
+      <span class="meta-sub">Sepolia · ERC-1155 · IPFS</span>
+    </div>
+    <div class="meta-block">
+      <span class="meta-k">LINKS</span>
+      <a class="meta-v" href="https://greenifyrc.vercel.app" target="_blank">greenifyrc.vercel.app</a>
+      <a class="meta-sub" href="https://github.com/rajdeepchaudhari-work/Greenify" target="_blank">github.com/…/Greenify</a>
+    </div>
+  </div>
+
+  <p class="video-cta mt-l">
+    ▶ <b>Recorded demo</b>
+    <a href="https://stream.office.com/<PASTE-YOUR-STREAM-LINK>" target="_blank">
+      stream.office.com/&lt;PASTE-YOUR-STREAM-LINK&gt;
+    </a>
+  </p>
+
+  <div class="deck-footer">
+    <span class="mono">#blockchain #carbon #dapp</span>
+    <span class="slide-number" data-current="1" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>Hi, I'm <b>Rajdeep Chaudhari</b>, student ID 2522821. This is my CN6035 Task 2 demonstration for Greenify, a hybrid DApp for on-chain carbon credit trading.</p>
+    <p>Over the next ten minutes I'll walk through three things: <b>the problem</b> I'm trying to solve, <b>the system</b> I built, and <b>a live demo</b> of it running on Sepolia.</p>
+    <p>The whole project lives at <em>greenifyrc.vercel.app</em>, and all source code is open on my GitHub. The slide you're looking at also has a link to the Stream recording for my tutors.</p>
+    <p>Let me start with the problem, because it frames every technical decision that comes after.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 2. AGENDA                                               -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Agenda">
+  <p class="kicker">agenda</p>
+  <h2 class="h2">What this talk covers</h2>
+  <div class="stack mt-l">
+    <div class="agenda-row"><span class="num">01</span><span class="t">The problem: carbon markets are a black box</span><span class="d">~1 min</span></div>
+    <div class="agenda-row"><span class="num">02</span><span class="t">System overview &amp; tech stack</span><span class="d">~1 min</span></div>
+    <div class="agenda-row"><span class="num">03</span><span class="t">Smart contract design (3 contracts)</span><span class="d">~2 min</span></div>
+    <div class="agenda-row"><span class="num">04</span><span class="t">Blockchain interaction lifecycle</span><span class="d">~1 min</span></div>
+    <div class="agenda-row"><span class="num">05</span><span class="t">Live demo of the full flow</span><span class="d">~3 min</span></div>
+    <div class="agenda-row"><span class="num">06</span><span class="t">Quality, security, limitations</span><span class="d">~2 min</span></div>
+  </div>
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="2" data-total="10"></span>
+  </div>
+  <aside class="notes">
+    <p>Here's how I've structured the next ten minutes.</p>
+    <p>One minute setting up why the carbon market needs this. One minute on the architecture. Two minutes on the smart contracts, which is the heart of the work. One minute on how a transaction flows end-to-end. Three minutes of live demo so you can see it actually work. Two minutes wrapping up quality and limitations.</p>
+    <p>I'm going to keep the demo short and focused, and I'll keep an eye on the timer.</p>
+    <p>Let's start.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 3. PROBLEM                                              -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Problem">
+  <p class="kicker">01 · the problem</p>
+  <h2 class="h2">Carbon markets are a <span class="hl-red">black box.</span></h2>
+  <p class="lede mt-s">
+    A $900bn industry running on PDFs and proprietary registries (UNDP, 2022).
+  </p>
+
+  <div class="grid3 mt-l">
+    <div class="card card-yellow">
+      <span class="card-num">01</span>
+      <h3>Double-counting</h3>
+      <p>The same offset gets sold to two buyers by two different registries. Nobody catches it because no one can see the full ledger.</p>
+    </div>
+    <div class="card card-red">
+      <span class="card-num">02</span>
+      <h3>Retirement fraud</h3>
+      <p>Credits "retired" by one firm quietly reappear on another firm's ESG report six months later.</p>
+    </div>
+    <div class="card card-lavender">
+      <span class="card-num">03</span>
+      <h3>Zero auditability</h3>
+      <p>Want to verify a claim? Email a PDF. Wait three weeks. Pray the registry still exists.</p>
+    </div>
+  </div>
+
+  <blockquote class="citation mt-m">
+    "More than 90% of rainforest carbon offsets by biggest certifier are worthless"
+    <cite> — Greenfield, <em>The Guardian</em>, 2023</cite>
+  </blockquote>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="3" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>The voluntary carbon market moved roughly nine hundred billion dollars last year. That number matters. What's broken is that despite the size, the underlying record-keeping is still email, spreadsheets, and proprietary registries you have to request access to.</p>
+    <p>Three concrete failure modes: <b>double-counting</b>, where the same credit gets sold twice; <b>retirement fraud</b>, where burned credits quietly come back; and <b>zero auditability</b>, because you can't verify anything without going through the registry.</p>
+    <p>The Guardian investigation in 2023 showed more than <em>ninety percent</em> of rainforest offsets from the world's biggest certifier weren't real. That's not a Verra problem. It's a ledger problem. When the record is private, all three failures become invisible.</p>
+    <p>Greenify solves the ledger part. Not MRV, not verification methodology, just the data layer.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 4. SOLUTION & ARCHITECTURE                              -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Architecture">
+  <p class="kicker">02 · system overview</p>
+  <h2 class="h2">Three tiers. Chain owns truth.</h2>
+
+  <div class="arch mt-l">
+    <div class="arch-row">
+      <div class="arch-layer-label">CLIENT</div>
+      <div class="arch-box">User · MetaMask</div>
+      <div class="arch-arr">→</div>
+      <div class="arch-box">React + Vite SPA</div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-layer-label">EDGE</div>
+      <div class="arch-box">Pinata · IPFS</div>
+      <div class="arch-arr">↔</div>
+      <div class="arch-box">Vercel <span class="mono">/api/*</span></div>
+    </div>
+    <div class="arch-row">
+      <div class="arch-layer-label">STATE</div>
+      <div class="arch-box arch-db">MongoDB Atlas<br><small>event cache</small></div>
+      <div class="arch-arr">←</div>
+      <div class="arch-box arch-chain">Ethereum Sepolia<br><small>3 contracts</small></div>
+    </div>
+  </div>
+
+  <p class="caption mt-m">
+    Mongo is a <b>read-only mirror</b> of on-chain events. Drop the DB,
+    next sync rebuilds it. The chain is always the source of truth.
+  </p>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="4" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>Here's the full system. Three tiers, each with one job.</p>
+    <p>The <b>client</b> is a React + Vite single-page app. The user talks to MetaMask; the SPA builds transactions with ethers and gets them signed.</p>
+    <p>The <b>edge</b> is a set of Vercel serverless functions. They pin project metadata to IPFS through Pinata, and they expose a REST API for the frontend.</p>
+    <p>The <b>state</b> tier has two pieces. Ethereum Sepolia holds the canonical state. MongoDB caches decoded events so the frontend can load fast without hitting the RPC every time.</p>
+    <p>The important property is the arrow direction: events flow <em>from</em> the chain <em>to</em> Mongo, never the other way. If I wipe the Mongo database, the next sync rebuilds the whole state from the chain. No off-chain service ever writes truth.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 5. STACK TABLE                                          -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Stack">
+  <p class="kicker">02b · tech stack</p>
+  <h2 class="h2">Boring choices for a reason.</h2>
+
+  <table class="stack-table mt-l">
+    <thead>
+      <tr><th>Layer</th><th>Tech</th><th>Why</th></tr>
+    </thead>
+    <tbody>
+      <tr><td>Contracts</td><td>Solidity 0.8.24, OpenZeppelin 5.0, Hardhat</td><td>Audited primitives (AccessControl, ERC-1155, ReentrancyGuard)</td></tr>
+      <tr><td>Frontend</td><td>React 18, Vite 5, ethers v6, Tailwind</td><td>Fast dev loop, first-class MetaMask support</td></tr>
+      <tr><td>Backend</td><td>Vercel serverless, Mongoose, Zod</td><td>Free tier, zero-ops, checkpointed polling indexer</td></tr>
+      <tr><td>Storage</td><td>IPFS via Pinata</td><td>Content-addressed metadata, tamper-evident</td></tr>
+      <tr><td>Infra</td><td>MongoDB Atlas M0, GitHub Actions</td><td>Free cluster, CI on every push</td></tr>
+    </tbody>
+  </table>
+
+  <p class="caption mt-m">
+    Every dependency is open-source and inspectable (OpenZeppelin, 2024).
+    No proprietary SDKs. Every secret in encrypted env vars.
+  </p>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="5" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>Technology choices. I deliberately went boring.</p>
+    <p>For the contracts, I used OpenZeppelin v5 for everything that could be reused. AccessControl for roles, ERC-1155 for the token, ReentrancyGuard for the marketplace. I didn't reimplement any of these. They're audited by people who do this full-time.</p>
+    <p>Frontend is React + Vite + TypeScript + ethers v6. Standard stack. I chose Vite over Next because I don't need SSR, and the dev loop is faster.</p>
+    <p>For the backend, originally I had an Express server, but free-tier hosting kept putting it to sleep and dropping my WebSocket subscriptions to the RPC. I moved everything to Vercel serverless functions and reworked the indexer to use a polling checkpoint instead. One deploy now ships both the SPA and the API.</p>
+    <p>MongoDB Atlas free tier for the event cache. Pinata for IPFS. Everything fits inside free plans, which matters for a coursework project.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 6. SMART CONTRACTS                                      -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Contracts">
+  <p class="kicker">03 · smart contracts</p>
+  <h2 class="h2">Three contracts, one responsibility each.</h2>
+
+  <div class="contracts mt-l">
+    <div class="contract-card">
+      <span class="chip chip-black">1</span>
+      <h3>ProjectRegistry</h3>
+      <p><b>Who can register</b> a project and <b>who can approve</b> it.</p>
+      <ul>
+        <li><code>registerProject(cid)</code> — permissionless</li>
+        <li><code>approveProject(id)</code> — <code>VERIFIER_ROLE</code></li>
+        <li><code>recordIssuance(id, amt)</code> — called by credit</li>
+      </ul>
+    </div>
+    <div class="contract-card">
+      <span class="chip chip-red">2</span>
+      <h3>CarbonCredit <small>(ERC-1155)</small></h3>
+      <p><b>Token:</b> <code>tokenId == projectId</code>, 1 unit = 1 tCO₂e.</p>
+      <ul>
+        <li><code>mint(to, id, amt)</code> — <code>MINTER_ROLE</code></li>
+        <li><code>retire(id, amt)</code> — burns + emits receipt</li>
+        <li>Uses Registry approval check before mint</li>
+      </ul>
+    </div>
+    <div class="contract-card">
+      <span class="chip chip-yellow">3</span>
+      <h3>Marketplace</h3>
+      <p><b>Escrowed</b> listing book with capped protocol fee.</p>
+      <ul>
+        <li><code>list(id, amt, price)</code> — escrows credits</li>
+        <li><code>buy(id, amt)</code> — <code>payable</code>, checks-effects-interactions</li>
+        <li>Fee hard-capped at 10%, <code>ReentrancyGuard</code></li>
+      </ul>
+    </div>
+  </div>
+
+  <p class="caption mt-m">
+    Why ERC-1155? <b>ERC-20</b> loses per-project provenance; <b>ERC-721</b> over-models
+    (credits <em>are</em> fungible inside a project). ERC-1155 is the right shape (Radomski et al., 2018).
+  </p>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="6" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>Three contracts. Each does one thing.</p>
+    <p><b>ProjectRegistry</b> is the list of environmental projects. Anyone can register, but only a verifier role can approve. In a production deployment the verifier would be a Gnosis Safe multisig; for the coursework it's a single test account with the role granted.</p>
+    <p><b>CarbonCredit</b> is the ERC-1155 token. I chose ERC-1155 deliberately. ERC-20 would collapse every credit into one pool and you'd lose the ability to prove a retirement came from a specific project. ERC-721 treats each credit as a unique NFT, which is overkill because credits inside a project really are fungible. ERC-1155 sits in the middle: one contract, many project batches, each fungible internally. The key function is <code>retire</code>, which burns the credits and emits the receipt event.</p>
+    <p><b>Marketplace</b> is the listing book. Sellers escrow credits into the contract; buyers pay with ETH. I follow checks-effects-interactions and apply ReentrancyGuard as belt-and-braces, cap the protocol fee at 10% in two places, and use custom errors everywhere.</p>
+    <p>All three are verified on Etherscan.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 7. BLOCKCHAIN INTERACTION                               -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Interaction">
+  <p class="kicker">04 · blockchain lifecycle</p>
+  <h2 class="h2">A transaction, from click to confirmation.</h2>
+
+  <ol class="lifecycle mt-l">
+    <li>
+      <span class="step-num">1</span>
+      <div><b>SPA builds tx</b><br><small>ethers v6, typed params via ABI</small></div>
+    </li>
+    <li>
+      <span class="step-num">2</span>
+      <div><b>MetaMask signs</b><br><small>user confirms; private key never leaves browser</small></div>
+    </li>
+    <li>
+      <span class="step-num">3</span>
+      <div><b>Sepolia mines</b><br><small>~15s; TxBanner shows pending state</small></div>
+    </li>
+    <li>
+      <span class="step-num">4</span>
+      <div><b>Contract emits event</b><br><small>e.g. <code>ProjectRegistered(id, owner, cid)</code></small></div>
+    </li>
+    <li>
+      <span class="step-num">5</span>
+      <div><b>/api/sync picks it up</b><br><small>cron polls every minute; <code>queryFilter</code> in 45k chunks</small></div>
+    </li>
+    <li>
+      <span class="step-num">6</span>
+      <div><b>Mongo upsert</b><br><small>idempotent by event id; frontend refreshes</small></div>
+    </li>
+  </ol>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="7" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>This is the end-to-end lifecycle of any write action in the app.</p>
+    <p><b>Step 1</b>, the SPA builds the transaction. ethers v6 gives me typed contract bindings from the ABI, so there's no string-concatenation of function signatures.</p>
+    <p><b>Step 2</b>, MetaMask pops up and asks the user to sign. The private key never leaves the browser extension; the signed hex comes back to me.</p>
+    <p><b>Step 3</b>, I forward that to Sepolia via a public RPC. While it's mining, my TxBanner component shows a yellow pending state with the hash linked to Etherscan.</p>
+    <p><b>Step 4</b>, the contract emits an event on success. This is the crucial part: events are how the off-chain world finds out something happened.</p>
+    <p><b>Step 5</b>, my <code>/api/sync</code> serverless function polls every minute. It reads <code>lastBlock</code> from Mongo, queries logs in chunked ranges, and writes each event.</p>
+    <p><b>Step 6</b>, upserts mean the whole thing is idempotent. Running sync twice on the same range does nothing the second time. That's the property that lets me wipe the DB and rebuild from scratch without fear.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 8. LIVE DEMO                                            -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Demo">
+  <p class="kicker">05 · live demo</p>
+  <h2 class="h2">From register to retire. On Sepolia. Right now.</h2>
+
+  <div class="demo-script mt-l">
+    <div class="demo-step">
+      <span class="demo-chip">01</span>
+      <div>
+        <b>Public browse</b>
+        <p>Land on <code>/</code>, see projects and stats with no wallet connected.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <span class="demo-chip">02</span>
+      <div>
+        <b>Connect + switch chain</b>
+        <p>MetaMask prompt, auto-switch to Sepolia, address shown in navbar.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <span class="demo-chip">03</span>
+      <div>
+        <b>Register project</b>
+        <p>Metadata → Pinata IPFS → tx → <code>ProjectRegistered</code> event.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <span class="demo-chip">04</span>
+      <div>
+        <b>Approve + mint 100 credits</b>
+        <p>Verifier role in action; <code>CreditsIssued</code> event.</p>
+      </div>
+    </div>
+    <div class="demo-step">
+      <span class="demo-chip">05</span>
+      <div>
+        <b>List, buy, retire</b>
+        <p>Second account buys; original retires remainder; <code>CreditsRetired</code> receipt on Etherscan.</p>
+      </div>
+    </div>
+  </div>
+
+  <p class="caption mt-m">
+    Full recording on MS Stream (link on cover slide).
+  </p>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="8" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>This slide corresponds to the live demo portion of the recorded video. Walk through it in this order.</p>
+    <p>First, open the site in an incognito tab with no wallet connected. Show that projects and listings render. That's the <em>public browse mode</em>: visitors can audit everything without signing anything.</p>
+    <p>Second, connect MetaMask. If they're on the wrong chain, the app prompts a switch to Sepolia.</p>
+    <p>Third, go to Registry. Fill in a name, description, location, upload an image. When I click Register, the backend first pins to IPFS and returns a CID, then the SPA sends <code>registerProject(cid)</code> to the contract. Show the tx hash, click through to Etherscan.</p>
+    <p>Fourth, approve the project (verifier role), then mint 100 credits to my own wallet.</p>
+    <p>Fifth, list 50 for sale, switch to a second MetaMask account, buy 20, then retire the remainder from the original account. Click the <code>CreditsRetired</code> event on Etherscan to show the permanent receipt.</p>
+    <p>End on the Dashboard with the stats refreshed.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 9. QUALITY & SECURITY                                   -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Quality">
+  <p class="kicker">06 · quality &amp; security</p>
+  <h2 class="h2">Not a toy. Actually tested.</h2>
+
+  <div class="quality-grid mt-l">
+    <div class="q-card">
+      <div class="q-num">91%</div>
+      <div class="q-label">Hardhat statement coverage</div>
+      <div class="q-sub">13 passing tests</div>
+    </div>
+    <div class="q-card">
+      <div class="q-num">3 ✓</div>
+      <div class="q-label">Contracts verified on Etherscan</div>
+      <div class="q-sub">Registry · Credit · Marketplace</div>
+    </div>
+    <div class="q-card">
+      <div class="q-num">0</div>
+      <div class="q-label">ESLint / Solhint warnings</div>
+      <div class="q-sub">CI enforces on every push</div>
+    </div>
+    <div class="q-card">
+      <div class="q-num">A11y</div>
+      <div class="q-label">WCAG AA contrast + focus rings</div>
+      <div class="q-sub">ErrorBoundary, ARIA labels</div>
+    </div>
+  </div>
+
+  <div class="threat mt-m">
+    <b>Threat model covered:</b>
+    re-entrancy (CEI + <code>ReentrancyGuard</code>) ·
+    unauthorised minting (<code>MINTER_ROLE</code>) ·
+    double-counting (ERC-1155 burn) ·
+    fee manipulation (10% cap) ·
+    leaked secrets (encrypted env vars) (OWASP, 2023).
+  </div>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="9" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>Quality gates. This is where I want to make it clear the project isn't just a happy-path prototype.</p>
+    <p><b>Ninety-one percent</b> statement coverage from thirteen passing Hardhat tests. They cover the full flow: register, approve, mint, list, buy, cancel, retire. Branches are a bit lower because I don't exercise every adversarial revert, but every path in the success flow is green.</p>
+    <p>All <b>three contracts are source-verified on Etherscan</b>. Which means the bytecode running on Sepolia matches the repo byte-for-byte. Anyone can read my Solidity from the block explorer.</p>
+    <p><b>CI on every push</b>: ESLint zero-warnings, Solhint zero-violations, Prettier format check, full Hardhat test suite. Husky replays all of this as pre-commit hooks locally.</p>
+    <p>I walked through the obvious <b>threat model</b>. Re-entrancy is handled by checks-effects-interactions plus ReentrancyGuard. Minting is gated. Double-counting is structurally impossible because credits are ERC-1155 tokens in a wallet. The fee is capped. Secrets are encrypted. For mainnet I'd add Slither and invariant tests.</p>
+  </aside>
+</section>
+
+<!-- ===================================================== -->
+<!-- 10. LIMITATIONS + REFERENCES                            -->
+<!-- ===================================================== -->
+<section class="slide" data-title="Closing">
+  <p class="kicker">closing</p>
+  <h2 class="h2">What's next, and who to cite.</h2>
+
+  <div class="two-col mt-l">
+    <div>
+      <h3 class="sub-h">Honest limitations</h3>
+      <ul class="limit-list">
+        <li><b>Single-EOA verifier.</b> Production needs a Gnosis Safe multisig.</li>
+        <li><b>Daily Vercel cron.</b> I use cron-job.org for sub-hour sync.</li>
+        <li><b>Sepolia only.</b> Contracts are chain-agnostic; Polygon/Arbitrum is a config change.</li>
+        <li><b>No off-chain attestation trail.</b> EIP-712 signed docs are v2.</li>
+      </ul>
+    </div>
+    <div>
+      <h3 class="sub-h">References (Harvard)</h3>
+      <ol class="ref-list">
+        <li>Greenfield, P. (2023) 'Revealed: more than 90% of rainforest carbon offsets by biggest certifier are worthless', <em>The Guardian</em>, 18 Jan.</li>
+        <li>OpenZeppelin (2024) <em>Contracts documentation, v5.x</em>.</li>
+        <li>OWASP (2023) <em>Smart Contract Top 10</em>. OWASP Foundation.</li>
+        <li>Radomski, W. et al. (2018) <em>EIP-1155: Multi Token Standard</em>.</li>
+        <li>United Nations Development Programme (2022) <em>What are carbon markets and why are they important?</em></li>
+        <li>Vercel (2026) <em>Serverless Functions, Node.js runtime</em>.</li>
+        <li>World Bank (2023) <em>State and Trends of Carbon Pricing 2023</em>. Washington DC: World Bank.</li>
+      </ol>
+    </div>
+  </div>
+
+  <p class="thank-you mt-l">
+    <b>Thank you.</b>
+    Demo: <a href="https://greenifyrc.vercel.app" target="_blank">greenifyrc.vercel.app</a>
+    · Code: <a href="https://github.com/rajdeepchaudhari-work/Greenify" target="_blank">GitHub</a>
+  </p>
+
+  <div class="deck-footer">
+    <span class="mono">rajdeepchaudhari · 2026</span>
+    <span class="slide-number" data-current="10" data-total="10"></span>
+  </div>
+
+  <aside class="notes">
+    <p>Wrapping up with honest limitations and references.</p>
+    <p>The biggest limitation is the <b>single-account verifier</b>. Whoever holds that role can approve fraudulent projects. In production, role rotation to a multisig plus a formal MRV pipeline is non-negotiable. For this coursework, it's just me.</p>
+    <p>The Vercel free tier caps cron jobs at daily intervals. For sub-hour sync during a demo I use cron-job.org as a free secondary trigger. A paid plan or self-hosted scheduler is the clean answer long-term.</p>
+    <p>References are all in Harvard format on the right. The two most important are the <em>Guardian</em> piece from 2023, which quantifies the carbon-market credibility problem, and the <em>EIP-1155</em> spec from Radomski and colleagues, which is the standard my token inherits.</p>
+    <p>Thank you for watching. The live demo is online, the code is on GitHub, and the full technical report is in the repository. Happy to take questions.</p>
+  </aside>
+</section>
+
+</div>
+
+<script src="assets/runtime.js"></script>
+</body>
+</html>
