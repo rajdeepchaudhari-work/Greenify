@@ -20,6 +20,20 @@ A hybrid DApp for trading tokenised carbon credits on Ethereum. Built as the CN6
 
 Greenify lets industries and environmental projects trade carbon credits without registries or spreadsheets. A credit is an ERC-1155 token (`1 unit = 1 tonne CO₂e`); every mint, sale, and retirement is a public Ethereum transaction. Anyone can audit the entire supply-chain from a block explorer.
 
+## Screenshots
+
+| Landing page (public, no wallet) | App dashboard (connected)            |
+| -------------------------------- | ------------------------------------ |
+| ![Landing](./images/landing.png) | ![Dashboard](./images/dashboard.png) |
+
+| Tx banner during mining              | Contract verified on Etherscan       |
+| ------------------------------------ | ------------------------------------ |
+| ![Tx banner](./images/tx-banner.png) | ![Etherscan](./images/etherscan.png) |
+
+![Coverage](./images/coverage.png)
+
+---
+
 ### End-to-end flow
 
 1. **Register** — a project owner pins metadata (+ evidence image) to IPFS and writes the CID on-chain
