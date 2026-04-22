@@ -377,6 +377,66 @@
   border-top: 3px solid var(--g-ink);
 }
 
+/* ---------- Illustrations ---------- */
+
+/* Cover slide: illustration top-right, text takes the left */
+.cover-layout { position: relative; }
+.cover-illo {
+  position: absolute;
+  top: 2rem;
+  right: 2.5rem;
+  width: min(260px, 26vw);
+  height: auto;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.9;
+}
+.cover-text { position: relative; z-index: 1; max-width: 62%; }
+
+/* Sub-title slides with a single side/corner illustration */
+.side-illo {
+  position: absolute;
+  width: min(210px, 22vw);
+  height: auto;
+  opacity: 0.9;
+  pointer-events: none;
+  z-index: 0;
+}
+.side-illo-right { top: 2rem; right: 2.5rem; }
+.side-illo-left  { top: 2rem; left:  2.5rem; }
+
+.corner-illo {
+  position: absolute;
+  bottom: 2.5rem;
+  right: 2.5rem;
+  width: min(170px, 18vw);
+  height: auto;
+  opacity: 0.85;
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* Keep main content above illustrations */
+.slide > .kicker,
+.slide > h1,
+.slide > h2,
+.slide > .lede,
+.slide > .stack,
+.slide > .grid3,
+.slide > .citation,
+.slide > .arch,
+.slide > .caption,
+.slide > .stack-table,
+.slide > .contracts,
+.slide > .lifecycle,
+.slide > .demo-script,
+.slide > .quality-grid,
+.slide > .threat,
+.slide > .two-col,
+.slide > .thank-you,
+.slide > .cover-meta,
+.slide > .deck-footer { position: relative; z-index: 1; }
+
 /* ---------- Slide number + footer ---------- */
 .deck-footer {
   position: absolute;
