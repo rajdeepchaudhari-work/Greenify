@@ -1,0 +1,503 @@
+% !TEX program = pdflatex
+% Compile on Overleaf (free, no install) — https://overleaf.com
+% Or locally: `pdflatex Greenify-Report.tex` (twice, for cross-refs)
+% Or with Tectonic:                `tectonic Greenify-Report.tex`
+\documentclass[11pt,a4paper]{article}
+
+% ---------- Packages ----------
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[margin=1in]{geometry}
+\usepackage{graphicx}
+\usepackage{xcolor}
+\usepackage{hyperref}
+\usepackage{fancyhdr}
+\usepackage{titlesec}
+\usepackage{booktabs}
+\usepackage{tabularx}
+\usepackage{enumitem}
+\usepackage{listings}
+\usepackage{tcolorbox}
+\usepackage{microtype}
+\usepackage{parskip}
+\usepackage{float}
+
+% ---------- Colours ----------
+\definecolor{ink}{HTML}{0A0A0A}
+\definecolor{accent}{HTML}{C0392B}
+\definecolor{muted}{HTML}{555555}
+\definecolor{code-bg}{HTML}{F5F2EC}
+
+% ---------- Hyperlinks ----------
+\hypersetup{
+    colorlinks=true,
+    linkcolor=accent,
+    urlcolor=accent,
+    citecolor=accent,
+    pdftitle={Greenify — Technical Report},
+    pdfauthor={Rajdeep Chaudhari},
+    pdfsubject={CN6035 Mobile and Distributed Systems — Task 1}
+}
+
+% ---------- Sections ----------
+\titleformat{\section}{\Large\bfseries\color{ink}}{\thesection.}{0.5em}{}
+\titleformat{\subsection}{\large\bfseries\color{ink}}{\thesubsection}{0.5em}{}
+
+% ---------- Header / footer ----------
+\pagestyle{fancy}
+\fancyhf{}
+\fancyhead[L]{\small\color{muted}Greenify — CN6035 Task 1}
+\fancyhead[R]{\small\color{muted}Rajdeep Chaudhari}
+\fancyfoot[C]{\small\thepage}
+\renewcommand{\headrulewidth}{0.4pt}
+
+% ---------- Code listing style ----------
+\lstset{
+    backgroundcolor=\color{code-bg},
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{accent}\bfseries,
+    commentstyle=\color{muted}\itshape,
+    stringstyle=\color{accent},
+    numbers=none,
+    frame=single,
+    rulecolor=\color{muted!40},
+    breaklines=true,
+    showstringspaces=false,
+    captionpos=b,
+    xleftmargin=0.4em,
+    xrightmargin=0.4em
+}
+
+% ---------- Title block ----------
+\title{\vspace{-1em}\textbf{Greenify}\\[0.3em]
+{\large A hybrid DApp for on-chain carbon credits}\\[1em]
+{\normalsize CN6035 Mobile and Distributed Systems — Task 1 (70\%)}}
+\author{Rajdeep Chaudhari \quad\textbullet\quad Student ID 2522821\\
+\href{https://github.com/rajdeepchaudhari-work/Greenify}{github.com/rajdeepchaudhari-work/Greenify}
+\quad\textbullet\quad
+\href{https://greenifyrc.vercel.app}{greenifyrc.vercel.app}}
+\date{April 2026}
+
+\begin{document}
+\maketitle
+\thispagestyle{fancy}
+
+\begin{tcolorbox}[colback=code-bg, colframe=ink, boxrule=0.8pt, arc=0pt,
+    left=8pt, right=8pt, top=6pt, bottom=6pt]
+\textbf{Abstract.}
+Greenify re-implements the carbon credit ledger on Ethereum. Three audited
+smart contracts issue, transfer and retire ERC-1155 tokens where one unit
+equals one tonne of CO\textsubscript{2} equivalent. A Vite + React SPA
+brokers MetaMask interactions; a Vercel serverless API caches on-chain
+events into MongoDB for fast reads and pins project metadata to IPFS via
+Pinata. Contracts are deployed and source-verified on Sepolia. The project
+hits 91\% Hardhat statement coverage, enforces lint+format+test gates in
+CI, and ships a public-browsing mode that requires no wallet for read-only
+interaction.
+\end{tcolorbox}
+
+\vspace{0.6em}
+
+% ===========================================================
+\section{Why I built this}
+The voluntary carbon market moved roughly \$900\,bn last year. Most of it
+still runs on PDFs, spreadsheets and proprietary registries you have to
+email to audit. In 2023 a \emph{Guardian} investigation of Verra --- the
+biggest certifier --- found the majority of its rainforest credits did not
+represent real emission reductions. That isn't a Verra problem. It's a
+ledger problem. When the record is private, double-counting, silent
+re-use and retirement fraud are invisible to the buyers paying for the
+offsets.
+
+Greenify moves that record onto Ethereum. Three small contracts. Every
+registration, mint, sale and retirement is a public transaction. Anyone
+can audit the lifecycle of any credit from a block explorer. The hybrid
+DApp on top is a nicer way to interact, but the ledger is the thing that
+matters. This report walks through what I built, why I made the calls I
+did, and where I'd take it next.
+
+% ===========================================================
+\section{System overview}
+
+\begin{tcolorbox}[colback=code-bg, colframe=ink!80, boxrule=0.6pt, arc=0pt]
+\begin{verbatim}
+React + Vite SPA  ─►  Vercel serverless /api/*  ─►  MongoDB Atlas
+     │                       │                        │
+     │ ethers v6             │ ethers v6              │ cached events
+     ▼                       ▼                        ▲
+ MetaMask ──── signed tx ──►  Ethereum Sepolia ── logs ┘
+                             ┌───────────────────────┐
+                             │ ProjectRegistry       │
+                             │ CarbonCredit (ERC-1155)│
+                             │ Marketplace           │
+                             └───────────────────────┘
+\end{verbatim}
+\end{tcolorbox}
+
+Three tiers, each with a single job. Contracts own state. The serverless
+API caches events and pins metadata. The SPA presents the ledger and
+talks to the wallet. I kept the boundary between on-chain and off-chain
+deliberately strict: Mongo is a \emph{read-only mirror} and can be wiped
+and rebuilt from Sepolia at any time. No off-chain service is ever the
+source of truth.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Layer} & \textbf{Stack} \\
+\midrule
+Smart contracts & Solidity 0.8.24, OpenZeppelin 5.0, Hardhat, TypeChain, Chai \\
+Serverless API  & \texttt{@vercel/node}, Mongoose, Zod, Formidable, pinata-web3 \\
+Frontend        & React 18, Vite 5, TailwindCSS 3, ethers v6, React Router 6 \\
+Infrastructure  & Vercel (SPA + serverless), MongoDB Atlas M0, Pinata IPFS \\
+Quality         & ESLint, Solhint, Prettier, Husky, lint-staged, GitHub Actions \\
+\bottomrule
+\end{tabularx}
+\caption{The complete stack.}
+\end{table}
+
+% ===========================================================
+\section{Smart contract design}
+
+\subsection{ProjectRegistry}
+The registry is the list of environmental projects.
+\texttt{registerProject(string ipfsCid)} is permissionless; anyone can
+submit a project and pin its metadata to IPFS. What it cannot do on its
+own is issue credits. That gate is \texttt{VERIFIER\_ROLE} from
+OpenZeppelin's \texttt{AccessControl}. For the coursework deployment the
+verifier is a single test account; in production it would be a Gnosis
+Safe multisig. I chose role-based access over plain \texttt{Ownable} so
+that swap becomes a configuration change, not a contract rewrite.
+
+One small detail I care about: the project id is the same number as the
+ERC-1155 \texttt{tokenId} of the credit. There is no mapping to keep in
+sync between the registry and the token. You register a project, you get
+an id, credits minted against that id are that project --- done.
+
+\subsection{CarbonCredit (ERC-1155)}
+Credits are ERC-1155 tokens where one unit of any \texttt{tokenId}
+equals one tonne of CO\textsubscript{2} equivalent. I looked at the
+alternatives before picking ERC-1155:
+
+\begin{itemize}[leftmargin=1.3em, itemsep=2pt]
+    \item \textbf{ERC-20} --- collapses every credit into one fungible
+    pool. You lose the ability to say ``I retired credits from \emph{this}
+    forestry project in Brazil.'' Deal-breaker for carbon accounting.
+    \item \textbf{ERC-721} --- every credit is a unique NFT. Way more
+    expensive in gas, and over-modelled: credits inside a project
+    \emph{are} fungible with each other.
+    \item \textbf{ERC-1155} --- one contract, many project batches, each
+    fungible internally. The right shape.
+\end{itemize}
+
+\texttt{mint()} is behind \texttt{MINTER\_ROLE} and calls
+\texttt{registry.recordIssuance()} so the registry's issuance tally stays
+consistent. The function that matters most is \texttt{retire()}. It
+burns the caller's tokens and emits \texttt{CreditsRetired}. That event
+is the receipt. Auditors, regulators, ESG reporters --- all of them can
+resolve a retirement claim to a specific burn transaction on Sepolia. No
+recycling, no re-listing, no second life.
+
+\subsection{Marketplace}
+An escrowed ERC-1155 listing book. Sellers call \texttt{list()}, which
+immediately transfers their credits into the marketplace contract
+(one-time \texttt{setApprovalForAll}). Buyers call \texttt{buy()} with
+ETH. The contract transfers credits, pays the seller, takes a protocol
+fee, and refunds any overpayment --- all in one atomic call.
+
+\begin{lstlisting}[language={},caption={Buy flow (simplified) --- checks-effects-interactions in practice.}]
+function buy(uint256 id, uint256 amount) external payable nonReentrant {
+    Listing storage l = listings[id];
+    if (!l.active)                             revert ListingInactive();
+    if (amount == 0 || amount > l.amount)       revert NotEnoughAvailable();
+
+    uint256 total = amount * l.pricePerUnit;
+    if (msg.value < total)                      revert InsufficientPayment();
+
+    uint256 fee            = (total * feeBps) / 10_000;
+    uint256 sellerProceeds = total - fee;
+
+    // effects BEFORE external calls
+    l.amount -= amount;
+    if (l.amount == 0) l.active = false;
+
+    // interactions
+    credits.safeTransferFrom(address(this), msg.sender, l.projectId, amount, "");
+    _payout(l.seller, sellerProceeds);
+    if (fee > 0)            _payout(feeRecipient, fee);
+    if (msg.value > total)  _payout(msg.sender, msg.value - total);
+
+    emit Sold(id, msg.sender, amount, total);
+}
+\end{lstlisting}
+
+Four things I'm glad I nailed here:
+
+\begin{enumerate}[leftmargin=1.3em, itemsep=2pt]
+    \item \textbf{Checks~$\rightarrow$~effects~$\rightarrow$~interactions.}
+    State is updated before any external call. Textbook re-entrancy
+    defence.
+    \item \textbf{\texttt{ReentrancyGuard} anyway.} Belt and braces. ETH
+    transfers use low-level \texttt{call} with no gas limit, so in
+    principle a malicious seller contract could try to re-enter. I'm not
+    going to rely on ordering alone.
+    \item \textbf{Custom errors everywhere.} \texttt{NotSeller},
+    \texttt{InsufficientPayment}, \texttt{InvalidFee}. Cheaper than
+    string reverts and far easier to decode on the client.
+    \item \textbf{Fee capped in two places.} 1000 bps (10\%) hard-cap,
+    enforced in the constructor \emph{and} in \texttt{setFee}. An owner
+    cannot accidentally or deliberately set a 50\% fee.
+\end{enumerate}
+
+All three contracts are \textbf{source-verified on Etherscan}. The
+bytecode on Sepolia matches the source in this repository, byte for
+byte.
+
+% ===========================================================
+\section{Back-end: the indexer problem}
+This is the part I most enjoyed re-architecting. The first version was a
+long-running Express server with ethers' WebSocket event listeners. It
+worked locally; it fell apart on free-tier hosting. Render's free dyno
+sleeps after fifteen minutes of idle --- exactly long enough for public
+RPCs to drop the subscription. The server wakes up, the subscription is
+dead, and events start going to \texttt{/dev/null} silently. Not great.
+
+I rewrote the indexer as a \textbf{checkpointed poll} and moved
+everything into Vercel serverless functions colocated with the frontend.
+One deploy, one URL, no Express.
+
+\texttt{/api/sync} works like this:
+
+\begin{itemize}[leftmargin=1.3em, itemsep=2pt]
+    \item A single \texttt{Meta} document in Mongo stores
+    \texttt{lastBlock} --- the last block the indexer processed.
+    \item The endpoint reads that, calls
+    \texttt{registry.queryFilter(...)} and
+    \texttt{market.queryFilter(...)} in 45,000-block chunks (public RPCs
+    cap \texttt{eth\_getLogs} at 50k per call), writes each event as a
+    Mongo upsert, and advances the checkpoint.
+    \item Vercel cron fires it daily (the free-tier minimum); a
+    secondary cron-job.org monitor hits the endpoint every minute for
+    sub-hour freshness.
+\end{itemize}
+
+The nice property is that the design is \textbf{idempotent by
+construction}. Every write is an \texttt{updateOne} keyed by the event's
+natural id (\texttt{projectId}, \texttt{listingId}). Run it twice on the
+same range --- no change. Wipe Mongo entirely --- the next sync
+rebuilds the whole state from Sepolia.
+
+Other serverless-specific things I had to deal with:
+
+\begin{itemize}[leftmargin=1.3em, itemsep=2pt]
+    \item \textbf{Connection pooling.} Mongoose is expensive to
+    initialise. I cache the connection promise on
+    \texttt{global.\_mongoPromise} so warm invocations reuse the pool.
+    \item \textbf{Multipart uploads.} Vercel's Node runtime skips
+    body-parsing for \texttt{multipart/form-data}, which is what I needed
+    for image uploads. \texttt{formidable} reads the raw stream; images
+    are capped at 4\,MB.
+    \item \textbf{ESM extensions.} Vercel runs compiled
+    \texttt{api/*.js} under Node's ESM loader, which requires explicit
+    \texttt{.js} extensions on relative imports. TypeScript lets you
+    write \texttt{from './mongo'} but the runtime wants
+    \texttt{from './mongo.js'}. Got bitten by this in production before
+    I understood why.
+\end{itemize}
+
+% ===========================================================
+\section{Frontend}
+React + Vite. Two route trees: \texttt{/} is the marketing landing
+(public), \texttt{/app/*} is the application behind a navbar with
+Dashboard / Registry / Market.
+
+State is small. Two contexts:
+
+\begin{itemize}[leftmargin=1.3em, itemsep=2pt]
+    \item \texttt{WalletProvider} wraps MetaMask --- exposes address,
+    chainId, signer, and a \texttt{connect()} action. Also detects when
+    no browser wallet is present, in which case write actions show an
+    \texttt{InstallWalletCard} linking to MetaMask, Rabby and Coinbase
+    Wallet instead of silently failing.
+    \item \texttt{TxProvider} is a four-state banner:
+    \texttt{signing $\rightarrow$ mining $\rightarrow$ success | error}.
+    Every on-chain write goes through
+    \texttt{tx.run("Mint credits", () => contract.mint(...))}. The
+    banner drives itself, shows the tx hash as an Etherscan link, and
+    catches \emph{user rejected} / \emph{insufficient funds} into
+    friendly copy.
+\end{itemize}
+
+Three deliberate product choices:
+
+\begin{enumerate}[leftmargin=1.3em, itemsep=2pt]
+    \item \textbf{Public by default.} The read API has no auth. Someone
+    landing on the site can see every project, listing and stat without
+    ever clicking Connect Wallet. The wallet is only demanded when the
+    user actually wants to sign something.
+    \item \textbf{IPFS metadata in the client.} Project name,
+    description, and image come from Pinata, fetched client-side with
+    \texttt{ipfs.io} and Cloudflare as fallbacks.
+    \item \textbf{Neo-brutalist design.} 3\,px black borders, hard
+    offset shadows, Bricolage Grotesque on JetBrains Mono, high-contrast
+    cream/red/yellow/green palette. Loud on purpose, accidentally
+    accessible (contrast ratios and focus outlines satisfy WCAG AA
+    without extra work).
+\end{enumerate}
+
+A top-level \texttt{ErrorBoundary} catches anything uncaught and renders
+a recover-and-retry screen instead of a blank page.
+
+% ===========================================================
+\section{Quality and CI}
+The repo is an npm workspace with two member packages
+(\texttt{contracts}, \texttt{frontend}). GitHub Actions runs on every
+push: ESLint with zero warnings allowed, Solhint, Prettier format-check,
+and the full Hardhat test suite. Husky + lint-staged replay the same
+checks on every local commit.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lrrrr}
+\toprule
+\textbf{File} & \textbf{\% Stmts} & \textbf{\% Branch} & \textbf{\% Funcs} & \textbf{\% Lines} \\
+\midrule
+\texttt{ProjectRegistry.sol} & 93.75 & 71.43 & 85.71 & 95.00 \\
+\texttt{CarbonCredit.sol}    & 81.82 & 62.50 & 60.00 & 83.33 \\
+\texttt{Marketplace.sol}     & 92.86 & 56.67 & 100.00 & 91.67 \\
+\midrule
+\textbf{All files}           & \textbf{90.91} & \textbf{61.54} & \textbf{83.33} & \textbf{91.18} \\
+\bottomrule
+\end{tabularx}
+\caption{Hardhat coverage (13 passing tests).}
+\end{table}
+
+Everything below is green:
+\begin{itemize}[leftmargin=1.3em, itemsep=2pt]
+    \item 13 passing Chai tests covering the full
+    register$\rightarrow$approve$\rightarrow$mint$\rightarrow$list$\rightarrow$buy$\rightarrow$cancel$\rightarrow$retire flow.
+    \item Solhint: zero violations, pinned to Solidity \textasciicircum 0.8.24.
+    \item ESLint: zero warnings with \texttt{@typescript-eslint} +
+    \texttt{react-hooks} strict config.
+    \item TypeScript strict mode across the Vite project and the
+    separate \texttt{tsconfig.node.json} for the serverless API.
+\end{itemize}
+
+Commits use conventional-commits prefixes and are attributed to my
+GitHub account via a noreply email.
+
+% ===========================================================
+\section{Security --- what I thought about}
+I didn't run a formal audit (this is coursework), but I walked through
+the obvious threats and documented how each is mitigated.
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Threat} & \textbf{Mitigation} \\
+\midrule
+Re-entrancy on \texttt{buy}   & Checks-effects-interactions + \texttt{ReentrancyGuard} \\
+Unauthorised minting          & \texttt{MINTER\_ROLE}; mint also checks registry approval \\
+Double-counting               & ERC-1155 with unique project ids; transfers move credits, retire burns them \\
+Retirement fraud              & \texttt{retire()} is a real burn; \texttt{CreditsRetired} event is the audit trail \\
+Owner raising fees mid-market & 10\% cap in constructor \emph{and} \texttt{setFee} \\
+Silent ETH payout failure     & Every \texttt{.call} is return-checked with \texttt{TransferFailed} \\
+Leaked secrets                & \texttt{.env} gitignored; Vercel holds secrets encrypted \\
+Malicious verifier            & Role revocable by admin; production needs a multisig \\
+\bottomrule
+\end{tabularx}
+\caption{Threat model.}
+\end{table}
+
+For mainnet I would add Slither, Mythril, and a Foundry invariant test
+suite before going live. None are hard; they take time I didn't have
+this sprint.
+
+% ===========================================================
+\section{What's not here yet}
+Honest limitations I'd address in v2:
+
+\begin{itemize}[leftmargin=1.3em, itemsep=2pt]
+    \item \textbf{Verifier centralisation.} A single EOA holds
+    \texttt{VERIFIER\_ROLE}. Fine for a test deployment, fatal in
+    production. Swap for a Gnosis Safe with a formal MRV
+    (measurement-reporting-verification) pipeline behind it.
+    \item \textbf{Cron cadence.} Vercel's free tier caps cron at daily.
+    cron-job.org fills the gap, but a paid plan or self-hosted trigger
+    is the proper long-term answer.
+    \item \textbf{Chain lock-in.} Sepolia only. The contracts are
+    chain-agnostic --- adding Polygon or Arbitrum is a config change plus
+    a small chain-switcher in the UI. No Solidity changes required.
+    \item \textbf{No off-chain attestation trail.} Credits are backed by
+    whatever the verifier looked at off-chain. An EIP-712-signed
+    attestation document would close that loop cleanly. Natural next
+    feature.
+\end{itemize}
+
+% ===========================================================
+\section{Deliverables}
+
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Deliverable} & \textbf{Location} \\
+\midrule
+Source code (contracts + frontend) & \texttt{/contracts}, \texttt{/frontend} \\
+Tests (13 passing, 91\% cov)        & \texttt{contracts/test/Greenify.test.ts} \\
+CI pipeline                         & \texttt{.github/workflows/ci.yml} \\
+Deployed addresses                  & \texttt{contracts/deployments/sepolia.json} \\
+Installation manual                 & \texttt{SETUP.md} \\
+Repo README                         & \texttt{README.md} \\
+Live demo                           & \url{https://greenifyrc.vercel.app} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+\subsection*{Deployed contract addresses (Sepolia)}
+\begin{table}[H]
+\centering
+\small
+\begin{tabularx}{\linewidth}{lX}
+\toprule
+\textbf{Contract} & \textbf{Address} \\
+\midrule
+ProjectRegistry          & \href{https://sepolia.etherscan.io/address/0x86B861a6F7E4B10CD96B7491fFA6a0967441142b\#code}{\texttt{0x86B861a6F7E4B10CD96B7491fFA6a0967441142b}} \\
+CarbonCredit (ERC-1155)  & \href{https://sepolia.etherscan.io/address/0x4272be407BA26d9aD469E5951e549eD36932bB9E\#code}{\texttt{0x4272be407BA26d9aD469E5951e549eD36932bB9E}} \\
+Marketplace              & \href{https://sepolia.etherscan.io/address/0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403\#code}{\texttt{0x8BEdAf9e29aC4FBa25D679Dc8Fa4AdAc126a6403}} \\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+% ===========================================================
+\section{References}
+
+\begin{enumerate}[leftmargin=1.3em, itemsep=2pt]
+    \item UNDP Climate Promise (2022). \emph{What are carbon markets and
+    why are they important?}
+    \url{https://climatepromise.undp.org/news-and-stories/what-are-carbon-markets-and-why-are-they-important}
+    \item The Guardian (2023). \emph{Revealed: more than 90\% of
+    rainforest carbon offsets by biggest certifier are worthless,
+    analysis shows.}
+    \url{https://www.theguardian.com/environment/2023/jan/18/revealed-forest-carbon-offsets-biggest-provider-worthless-verra-aoe}
+    \item World Bank (2023). \emph{State and Trends of Carbon Pricing
+    2023.}
+    \url{https://openknowledge.worldbank.org/entities/publication/58f2a409-9bb7-4ee6-899d-be47835c838f}
+    \item OpenZeppelin Contracts v5.0 documentation.
+    \url{https://docs.openzeppelin.com/contracts/5.x/}
+    \item Ethereum EIP-1155: Multi Token Standard.
+    \url{https://eips.ethereum.org/EIPS/eip-1155}
+    \item Vercel Serverless Functions --- Node.js runtime docs.
+    \url{https://vercel.com/docs/functions/runtimes/node-js}
+    \item MongoDB (2024). \emph{Atlas free cluster connection best
+    practices.}
+    \url{https://www.mongodb.com/docs/atlas/reference/free-shared-limitations/}
+\end{enumerate}
+
+\end{document}
